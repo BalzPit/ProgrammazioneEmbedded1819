@@ -23,23 +23,11 @@
             android:text="titolo" />
 
         <ListView
-            android:id="@+id/listView1"
+            android:id="@+id/listView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/textList"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="15dp" />
     </RelativeLayout>
-
-    <Button
-        style="@style/Widget.AppCompat.Button.Small"
-        android:id="@+id/add"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:background="@android:drawable/ic_input_add"
-        android:onClick="scegli"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
