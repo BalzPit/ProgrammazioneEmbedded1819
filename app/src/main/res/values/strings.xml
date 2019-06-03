@@ -1,5 +1,3 @@
 <resources>
-    <string name="app_name">Test5</string>
-    <string name="pranzo">pranzo</string>
-    <string name="cena">cena</string>
+    <string name="app_name">Project</string>
 </resources>
