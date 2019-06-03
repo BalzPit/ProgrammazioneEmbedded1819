@@ -18,6 +18,10 @@
         </activity>
         <activity android:name=".MealActivity"/>
         <activity android:name=".InsertActivity"/>
+        <activity android:name=".tensorflowlite.ClassifierActivity"></activity>
     </application>
+
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-feature android:name="android.hardware.camera"/>
 
 </manifest>
