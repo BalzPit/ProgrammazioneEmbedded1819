@@ -1,0 +1,10 @@
+cheesecake
+chicken_wings
+chocolate_cake
+donuts
+pizza
+ramen
+risotto
+spaghetti_bolognese
+steak
+sushi
