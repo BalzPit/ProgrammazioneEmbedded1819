@@ -34,17 +34,23 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Trace;
-import android.support.annotation.UiThread;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+//import android.support.annotation.UiThread;
+//import android.support.v7.app.AppCompatActivity;
+//import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
+
+
 import java.nio.ByteBuffer;
 import java.util.List;
 
+import androidx.annotation.UiThread;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import gruppoembedded.pse1819.unipd.project.R;
 import gruppoembedded.pse1819.unipd.project.tensorflowlite.env.ImageUtils;
 import gruppoembedded.pse1819.unipd.project.tensorflowlite.env.Logger;
@@ -287,12 +293,12 @@ public abstract class CameraActivity extends AppCompatActivity
   }
 
   @Override
-  public void onRequestPermissionsResult(
-      final int requestCode, final String[] permissions, final int[] grantResults) {
+  public void onRequestPermissionsResult(final int requestCode, final String[] permissions, final int[] grantResults) {
     if (requestCode == PERMISSIONS_REQUEST) {
+      Log.i("CIAO", "lunghezza array =" +grantResults.length);
       if (grantResults.length > 0
           && grantResults[0] == PackageManager.PERMISSION_GRANTED
-          && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+          /*&& grantResults[1] == PackageManager.PERMISSION_GRANTED*/) {
         setFragment();
       } else {
         requestPermission();
