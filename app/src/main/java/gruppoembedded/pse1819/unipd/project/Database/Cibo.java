@@ -1,4 +1,4 @@
-package gruppoembedded.pse1819.unipd.project;
+package gruppoembedded.pse1819.unipd.project.Database;
 
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
@@ -11,7 +11,7 @@ public class Cibo {
     public long id;
 
     @NonNull
-    String text;
+    public String text;
     @Override
     public String toString() {
         return String.format("%s (id = %d)", text, id);

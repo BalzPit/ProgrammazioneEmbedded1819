@@ -13,6 +13,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import androidx.appcompat.app.AppCompatActivity;
+import gruppoembedded.pse1819.unipd.project.Database.Cibo;
+import gruppoembedded.pse1819.unipd.project.Database.CiboDb;
 
 public class InsertActivity extends AppCompatActivity {
 

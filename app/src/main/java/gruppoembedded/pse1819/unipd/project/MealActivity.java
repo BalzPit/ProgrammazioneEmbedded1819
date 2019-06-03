@@ -2,6 +2,8 @@ package gruppoembedded.pse1819.unipd.project;
 
 
 import androidx.appcompat.app.AppCompatActivity;
+import gruppoembedded.pse1819.unipd.project.Database.Cibo;
+import gruppoembedded.pse1819.unipd.project.Database.CiboDb;
 
 import android.app.Dialog;
 import android.content.Context;
