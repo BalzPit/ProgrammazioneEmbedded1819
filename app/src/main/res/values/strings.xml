@@ -1,5 +1,6 @@
 <resources>
-    <string name="app_name">TfLiteImageClassification</string>
+    <string name="app_name">Project</string>
+
     <string name="description_info">Info</string>
     <string name="request_permission">This sample needs camera permission.</string>
     <string name="camera_error">This device doesn\'t support Camera2 API.</string>
@@ -10,6 +11,9 @@
     <string name="nnapi">NNAPI</string>
     <string name="threads">Threads:</string>
     <string name="madewith">Made with: </string>
+  
+    <string name="pranzo">pranzo</string>
+    <string name="cena">cena</string>
 
     <string name="model">Model:</string>
     <string-array name="models">
@@ -23,4 +27,5 @@
         <item>GPU</item>
         <item>NNAPI</item>
     </string-array>
+  
 </resources>
