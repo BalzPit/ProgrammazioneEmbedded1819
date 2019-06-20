@@ -46,14 +46,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import org.json.JSONObject;
+
 import java.nio.ByteBuffer;
 import java.util.List;
 
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import gruppoembedded.pse1819.unipd.project.Database.Cibo;
-import gruppoembedded.pse1819.unipd.project.Database.CiboDb;
+import gruppoembedded.pse1819.unipd.project.Database.DietDb;
+import gruppoembedded.pse1819.unipd.project.Database.Meal;
 import gruppoembedded.pse1819.unipd.project.MealActivity;
 import gruppoembedded.pse1819.unipd.project.R;
 import gruppoembedded.pse1819.unipd.project.tensorflowlite.env.ImageUtils;
@@ -70,6 +72,7 @@ public abstract class CameraActivity extends AppCompatActivity
   private static final int PERMISSIONS_REQUEST = 1;
 
   private static final String PERMISSION_CAMERA = Manifest.permission.CAMERA;
+  private static final String TAG = "CameraAct";
   protected int previewWidth = 0;
   protected int previewHeight = 0;
   private Handler handler;
@@ -520,11 +523,24 @@ public abstract class CameraActivity extends AppCompatActivity
   }
 
   //instanziazione db
-  private CiboDb db;
+  /*private CiboDb db;
   private CiboDb getDatabaseManager(){
       if(db==null)
           db=CiboDb.getDatabase(this);
       return db;
+  }*/
+  private String riceviIntent(){
+    Intent intent=getIntent();
+    String pasto=intent.getStringExtra("nome");
+    return pasto;
+  }
+
+  //instanziazione db
+  private DietDb db;
+  private DietDb getDatabaseManager(){
+    if(db==null)
+      db=DietDb.getDatabase(this);
+    return db;
   }
 
   // Definition of onClick used for the TextViews of the detected items.
@@ -532,27 +548,72 @@ public abstract class CameraActivity extends AppCompatActivity
   @Override
   public void onClick (View v) {
       //creo oggetto di tipo Cibo, il cui testo è passato come parametro e lo inserisco nel database
-      Cibo elemento= new Cibo();
+      String elemento= "pizza";
 
       //choose textView to get the text from
       switch (v.getId()) {
           case R.id.detection_1:
-              elemento.text= recognition1TextView.getText().toString();
+              elemento= recognition1TextView.getText().toString();
               break;
           case R.id.detection_2:
-              elemento.text= recognition2TextView.getText().toString();
+              elemento= recognition2TextView.getText().toString();
               break;
           case R.id.detection_3:
-              elemento.text= recognition3TextView.getText().toString();
+              elemento= recognition3TextView.getText().toString();
               break;
       }
-      getDatabaseManager().noteModel().insertCibo(elemento);
+      //scopro qual è l'elemento della tabella pasti al quale aggiungere i cibi
+      String pasto = riceviIntent();
+      inserimento(elemento,pasto);
+  }
 
-      // notify the calling activity of the result (it will open the Dialog used to insert
-      // grams of the food selected in this activity) and close this one
-      Intent aggiungi=new Intent(this, MealActivity.class);
-      setResult(Activity.RESULT_OK, aggiungi);
-      finish();
+  //metodo identico aquello di InsertActivity
+  public void inserimento(String pietanza, String pasto){
+    try {
+      //se il pasto non esiste viene lanciata un'eccezione
+      Meal pastoAttuale = getDatabaseManager().noteModelMeal().findMealWithName(pasto).get(0);
+      Log.i(TAG, "l'elemento esiste");
+      //creo Json con i cibiDiOggi
+      try {
+        JSONObject cibo = new JSONObject();
+        Log.i(TAG, "elementi nel pasto considerato: "+pastoAttuale.cibiDiOggi);
+
+        //aggiungo nuovo elemento cibo e aggiorno il database (NB: l'elemento pastoAttuale sostituisce quello precedente)
+        cibo.put("nome",pietanza);
+        cibo.put("quantità","valore");
+        pastoAttuale.cibiDiOggi=pastoAttuale.cibiDiOggi +","+ cibo.toString();
+        getDatabaseManager().noteModelMeal().insertMeal(pastoAttuale);
+
+      } catch (Exception e) {
+        //in realtà questa non dovrebbe mai essere lanciata, dal momento che il primo elemento
+        //viene inserito correttamente, vedi sotto
+        Log.i(TAG, "insert: eccezzione nella creazione di JSONObject: " + e);
+      }
+
+    }catch(Exception manca) {
+      Log.i(TAG, "eccezione per mancanza elmento pasto: "+manca);
+
+      //perciò ne creo uno nuovo
+      Meal nuovoPasto = new Meal();
+      nuovoPasto.nome = pasto;
+      //una volta creato il pasto insrisco subito il primo elemento cibo
+      JSONObject cibi = new JSONObject();
+      try {
+        cibi.put("nome", pietanza);
+        cibi.put("quantità", "valore");
+        String cibiConvertiti=cibi.toString();
+        nuovoPasto.cibiDiOggi=cibiConvertiti;
+        //inserisco il pasto nella tabella corrispondente
+        getDatabaseManager().noteModelMeal().insertMeal(nuovoPasto);
+      }catch(Exception e){
+        Log.i(TAG, "insert: eccezzione sul put: " + e);
+      }
+    }
+    // notify the calling activity of the result (it will open the Dialog used to insert
+    // grams of the food selected in this activity) and close this one
+    Intent aggiungi=new Intent(this, MealActivity.class);
+    setResult(Activity.RESULT_OK, aggiungi);
+    finish();
   }
 
   protected abstract void processImage();

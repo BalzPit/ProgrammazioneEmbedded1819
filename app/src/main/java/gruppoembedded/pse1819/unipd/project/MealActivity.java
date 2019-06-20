@@ -3,8 +3,9 @@ package gruppoembedded.pse1819.unipd.project;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import gruppoembedded.pse1819.unipd.project.Database.Cibo;
-import gruppoembedded.pse1819.unipd.project.Database.CiboDb;
+//quelli in inglese
+import gruppoembedded.pse1819.unipd.project.Database.DietDb;
+import gruppoembedded.pse1819.unipd.project.Database.Meal;
 import gruppoembedded.pse1819.unipd.project.tensorflowlite.ClassifierActivity;
 
 import android.app.Activity;
@@ -21,8 +22,10 @@ import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
-import java.util.Formatter;
 import java.util.List;
 
 public class MealActivity extends AppCompatActivity {
@@ -54,7 +57,7 @@ public class MealActivity extends AppCompatActivity {
 
         if (requestCode == GET_FOOD) {
             if (resultCode == Activity.RESULT_OK) {
-                String[] nameproducts = trovaProdottiConDb();
+                String[] nameproducts = trovaProdottiConDb(titolo());
                 int position = nameproducts.length - 1;
                 ListView mylist = findViewById(R.id.slectedfoodslistView);
 
@@ -80,7 +83,7 @@ public class MealActivity extends AppCompatActivity {
 
     private void creat_table() {
         // definisco un array di stringhe
-        String[] nameproducts =trovaProdottiConDb();
+        String[] nameproducts =trovaProdottiConDb(titolo());
 
         // definisco un ArrayList
         final ArrayList<String> listp = new ArrayList<String>();
@@ -112,14 +115,16 @@ public class MealActivity extends AppCompatActivity {
     //metodo per prelevare dati dal database
 
     //instanziazione db
-    private CiboDb db;
-    private CiboDb getDatabaseManager(){
+
+    //creo accesso a db
+    private DietDb db;
+    private DietDb getDatabaseManager(){
         if(db==null)
-            db=CiboDb.getDatabase(this);
+            db=DietDb.getDatabase(this);
         return db;
     }
     //prelevo dati
-    private String[] trovaProdottiConDb(){
+    /*private String[] trovaProdottiConDb(String pasto){
         //ottengo dati dal db
         List<Cibo> dati=getDatabaseManager().noteModel().loadAllCibi();
         String[] lista=new String[dati.size()];
@@ -131,16 +136,53 @@ public class MealActivity extends AppCompatActivity {
             lista[i]=elem.text;
         }
         return lista;
-    }
-    //inserisco un po' di dati a caso nel db
-    private void inserisci(){
-        Cibo elemento= new Cibo();
-        elemento.text="pasta";
-        getDatabaseManager().noteModel().insertCibo(elemento);
-        elemento.text="carne";
-        getDatabaseManager().noteModel().insertCibo(elemento);
-        elemento.text="yogurt";
-        getDatabaseManager().noteModel().insertCibo(elemento);
+    }*/
+
+
+    //prelevo dati dei cibi associati al pasto di un giorno
+    private String[] trovaProdottiConDb(String pasto){
+        //ottengo dati dal db
+        List<Meal> dati=getDatabaseManager().noteModelMeal().loadAllMeals();
+        Meal mioPasto=new Meal();
+        Log.d(TAG, "lista pasti: "+dati);
+
+        //cerco il nome del pasto che mi interessa nella lista
+        for(int i=0;i<dati.size();i++){
+            Meal elem=dati.get(i);
+
+            //uso ignoreCase perché "pasto" inizia con la lettera maiuscola
+            if(elem.nome.compareToIgnoreCase(pasto)==0){
+                //se il nome combacia con quello che cerco lo salvo, poi estraggo tutti i cibi in esso contenuti
+                mioPasto=elem;
+                break;
+            }
+        }
+
+        //il compilatore vuole necessariamente una pre-inizializzazione dell'elemento lista
+        String[] lista=new String[0];
+
+        //estrazione cibi
+        try {
+            //JSONObject cibi = new JSONObject(mioPasto.cibiDiOggi);
+            if(mioPasto.cibiDiOggi!=null) {
+                Log.d(TAG, "entrato "+ mioPasto.cibiDiOggi);
+                JSONArray cibiArr=new JSONArray("[" + mioPasto.cibiDiOggi + "]");
+                Log.d(TAG, "cibiArr: " + cibiArr);
+                lista=new String[cibiArr.length()];
+
+                for (int i = 0; i < cibiArr.length(); i++) {
+                    JSONObject obj = new JSONObject(cibiArr.get(i).toString());
+                    String x = obj.getString("nome");
+                    lista[i] = x;
+
+                }
+            }else { //messo solo per debug
+                Log.d(TAG, "lista di cibi: "+lista.toString());
+            }
+        }catch(Exception e){
+            Log.d(TAG, "eccezzione: "+e);
+        }
+        return lista;
     }
 
 
@@ -206,12 +248,14 @@ public class MealActivity extends AppCompatActivity {
     public void scegli(View view){
         Button add=findViewById(R.id.add);
         Intent aggiungi=new Intent(view.getContext(),InsertActivity.class);
+        aggiungi.putExtra("nome", titolo());
         startActivityForResult(aggiungi,GET_FOOD);
     }
 
     public void scegliPhoto(View view){
         Button add=findViewById(R.id.add);
         Intent aggiungi=new Intent(view.getContext(), ClassifierActivity.class);
+        aggiungi.putExtra("nome", titolo());
         startActivityForResult(aggiungi,GET_FOOD);
     }
 
