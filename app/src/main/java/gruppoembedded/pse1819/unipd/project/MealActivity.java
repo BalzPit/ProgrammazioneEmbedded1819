@@ -4,6 +4,7 @@ package gruppoembedded.pse1819.unipd.project;
 import androidx.appcompat.app.AppCompatActivity;
 import gruppoembedded.pse1819.unipd.project.Database.Cibo;
 import gruppoembedded.pse1819.unipd.project.Database.CiboDb;
+import gruppoembedded.pse1819.unipd.project.tensorflowlite.ClassifierActivity;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -149,6 +150,12 @@ public class MealActivity extends AppCompatActivity {
     public void scegli(View view){
         Button add=findViewById(R.id.add);
         Intent aggiungi=new Intent(view.getContext(),InsertActivity.class);
+        startActivityForResult(aggiungi,0);
+    }
+
+    public void scegliPhoto(View view){
+        Button add=findViewById(R.id.add);
+        Intent aggiungi=new Intent(view.getContext(), ClassifierActivity.class);
         startActivityForResult(aggiungi,0);
     }
 }

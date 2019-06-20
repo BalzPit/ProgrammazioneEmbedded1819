@@ -37,11 +37,14 @@ import android.os.Trace;
 //import android.support.annotation.UiThread;
 //import android.support.v7.app.AppCompatActivity;
 //import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
+
+
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -290,12 +293,12 @@ public abstract class CameraActivity extends AppCompatActivity
   }
 
   @Override
-  public void onRequestPermissionsResult(
-      final int requestCode, final String[] permissions, final int[] grantResults) {
+  public void onRequestPermissionsResult(final int requestCode, final String[] permissions, final int[] grantResults) {
     if (requestCode == PERMISSIONS_REQUEST) {
+      Log.i("CIAO", "lunghezza array =" +grantResults.length);
       if (grantResults.length > 0
           && grantResults[0] == PackageManager.PERMISSION_GRANTED
-          && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+          /*&& grantResults[1] == PackageManager.PERMISSION_GRANTED*/) {
         setFragment();
       } else {
         requestPermission();
