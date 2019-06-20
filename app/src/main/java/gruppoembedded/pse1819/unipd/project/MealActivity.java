@@ -1,11 +1,13 @@
 package gruppoembedded.pse1819.unipd.project;
 
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import gruppoembedded.pse1819.unipd.project.Database.Cibo;
 import gruppoembedded.pse1819.unipd.project.Database.CiboDb;
 import gruppoembedded.pse1819.unipd.project.tensorflowlite.ClassifierActivity;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -16,15 +18,17 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Formatter;
 import java.util.List;
 
 public class MealActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivityPrinc";
-    Dialog myDialog;
+    private static final int GET_FOOD = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,11 +39,35 @@ public class MealActivity extends AppCompatActivity {
         TextView tv= (TextView)findViewById(R.id.textList);
         tv.setText(titolo());
 
-        //inserire un po' di dati nel db, PROVVISORIO
-        //inserisci();
-
         //metodo per compilare tabella
         creat_table();
+    }
+
+    //when the user selects a food, using either InsertActivity or ClassifierActiviy, open
+    //the dialog to insert the quantity of the food that was just chosen. (click the last selected item of the listview)
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        //used to update the list
+        onResume();
+
+        if (requestCode == GET_FOOD) {
+            if (resultCode == Activity.RESULT_OK) {
+                String[] nameproducts = trovaProdottiConDb();
+                int position = nameproducts.length - 1;
+                ListView mylist = findViewById(R.id.slectedfoodslistView);
+
+                //create illusion of having the list item selected
+                mylist.requestFocusFromTouch();
+                mylist.setSelection(position);
+
+                //perform a click on the correct item
+                mylist.performItemClick(mylist.getChildAt(position),
+                        position,
+                        mylist.getAdapter().getItemId(position));
+            }
+        }
     }
 
     //metodo per decidere il titolo
@@ -61,7 +89,7 @@ public class MealActivity extends AppCompatActivity {
         }
 
         // recupero la lista dal layout
-        final ListView mylist = (ListView) findViewById(R.id.listView1);
+        final ListView mylist = (ListView) findViewById(R.id.slectedfoodslistView);
 
         // creo e istruisco l'adattatore
         final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listp);
@@ -129,16 +157,44 @@ public class MealActivity extends AppCompatActivity {
         // settaggio componenti pop-up
         TextView text = (TextView) dialog.findViewById(R.id.testo);
         text.setText(testo);
-        TextView text1 = (TextView) dialog.findViewById(R.id.txtclose);
-        text1.setText("X");
 
-        Button dialogButton = (Button) dialog.findViewById(R.id.btnclose);
+        final NumberPicker gramsPicker= dialog.findViewById(R.id.grams_picker);
+        gramsPicker.setMinValue(0);
+        gramsPicker.setMaxValue(1000);
+
+        //!!!!=========  GET GRAMS FROM DATABASE====================!!!!
+
+        // int grams = ?
+        //gramsPicker.setValue(grams);
+
+        Button confirmButton = (Button) dialog.findViewById(R.id.btnconfirm);
         // se viene premuto il pulsante, chiudere il pop-up
         // NB! il popup viene chiuso anche se vi si preme fuori, ma le azioni di chiusura vengono eseguite solo in caso di pressione pulsante
-        dialogButton.setOnClickListener(new View.OnClickListener() {
+        confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: azioni prima della chiusura");
+
+                int selectedgrams = gramsPicker.getValue();
+
+                //!!!!======= SAVE SELECTED GRAMS OF THAT FOOD TO DATABASE =====!!!!
+
+                dialog.dismiss();
+            }
+        });
+
+        final Button deleteFood = dialog.findViewById(R.id.btndelete);
+
+        //delete the selected food from the list (and update it)
+        deleteFood.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "cancella cibo dal db");
+
+                //!!!!!===== DELETE the selected FOOD FROM this meal =====!!!!!!
+
+                //update the list on the activity and close the dialog window
+                creat_table();
                 dialog.dismiss();
             }
         });
@@ -150,12 +206,20 @@ public class MealActivity extends AppCompatActivity {
     public void scegli(View view){
         Button add=findViewById(R.id.add);
         Intent aggiungi=new Intent(view.getContext(),InsertActivity.class);
-        startActivityForResult(aggiungi,0);
+        startActivityForResult(aggiungi,GET_FOOD);
     }
 
     public void scegliPhoto(View view){
         Button add=findViewById(R.id.add);
         Intent aggiungi=new Intent(view.getContext(), ClassifierActivity.class);
-        startActivityForResult(aggiungi,0);
+        startActivityForResult(aggiungi,GET_FOOD);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.i(TAG, "Resuming activity");
+        //update the list of foods with possible new entries
+        creat_table();
     }
 }
