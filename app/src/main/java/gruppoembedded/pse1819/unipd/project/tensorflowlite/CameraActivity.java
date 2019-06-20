@@ -17,8 +17,10 @@
 package gruppoembedded.pse1819.unipd.project.tensorflowlite;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.hardware.camera2.CameraAccessException;
@@ -34,13 +36,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Trace;
-//import android.support.annotation.UiThread;
-//import android.support.v7.app.AppCompatActivity;
-//import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -51,6 +52,9 @@ import java.util.List;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import gruppoembedded.pse1819.unipd.project.Database.Cibo;
+import gruppoembedded.pse1819.unipd.project.Database.CiboDb;
+import gruppoembedded.pse1819.unipd.project.MealActivity;
 import gruppoembedded.pse1819.unipd.project.R;
 import gruppoembedded.pse1819.unipd.project.tensorflowlite.env.ImageUtils;
 import gruppoembedded.pse1819.unipd.project.tensorflowlite.env.Logger;
@@ -59,7 +63,7 @@ import gruppoembedded.pse1819.unipd.project.tensorflowlite.tflite.Classifier.Mod
 import gruppoembedded.pse1819.unipd.project.tensorflowlite.tflite.Classifier.Recognition;
 
 public abstract class CameraActivity extends AppCompatActivity
-    implements OnImageAvailableListener,
+    implements OnImageAvailableListener, View.OnClickListener,
         Camera.PreviewCallback {
   private static final Logger LOGGER = new Logger();
 
@@ -77,12 +81,12 @@ public abstract class CameraActivity extends AppCompatActivity
   private int yRowStride;
   private Runnable postInferenceCallback;
   private Runnable imageConverter;
-  protected TextView recognitionTextView,
-      recognition1TextView,
+  protected TextView recognition1TextView,
       recognition2TextView,
-      recognitionValueTextView,
+      recognition3TextView,
       recognition1ValueTextView,
-      recognition2ValueTextView;
+      recognition2ValueTextView,
+      recognition3ValueTextView;
   protected TextView inferenceTimeTextView;
 
   private Model model = Model.FLOAT;
@@ -107,14 +111,23 @@ public abstract class CameraActivity extends AppCompatActivity
     }
 
 
-    recognitionTextView = findViewById(R.id.detected_item);
-    recognitionValueTextView = findViewById(R.id.detected_item_value);
     recognition1TextView = findViewById(R.id.detected_item1);
     recognition1ValueTextView = findViewById(R.id.detected_item1_value);
     recognition2TextView = findViewById(R.id.detected_item2);
     recognition2ValueTextView = findViewById(R.id.detected_item2_value);
+    recognition3TextView = findViewById(R.id.detected_item3);
+    recognition3ValueTextView = findViewById(R.id.detected_item3_value);
 
     inferenceTimeTextView = findViewById(R.id.inference_info);
+
+    //the user can click any part of the LinearLayout's row that contains the desired food
+    LinearLayout detection1 = findViewById(R.id.detection_1);
+    detection1.setOnClickListener(this);
+    LinearLayout detection2 = findViewById(R.id.detection_2);
+    detection2.setOnClickListener(this);
+    LinearLayout detection3 = findViewById(R.id.detection_3);
+    detection3.setOnClickListener(this);
+
 
 
     model = Model.FLOAT;
@@ -440,25 +453,25 @@ public abstract class CameraActivity extends AppCompatActivity
     if (results != null && results.size() >= 3) {
       Recognition recognition = results.get(0);
       if (recognition != null) {
-        if (recognition.getTitle() != null) recognitionTextView.setText(recognition.getTitle());
+        if (recognition.getTitle() != null) recognition1TextView.setText(recognition.getTitle());
         if (recognition.getConfidence() != null)
-          recognitionValueTextView.setText(
+          recognition1ValueTextView.setText(
               String.format("%.2f", (100 * recognition.getConfidence())) + "%");
       }
 
       Recognition recognition1 = results.get(1);
       if (recognition1 != null) {
-        if (recognition1.getTitle() != null) recognition1TextView.setText(recognition1.getTitle());
+        if (recognition1.getTitle() != null) recognition2TextView.setText(recognition1.getTitle());
         if (recognition1.getConfidence() != null)
-          recognition1ValueTextView.setText(
+          recognition2ValueTextView.setText(
               String.format("%.2f", (100 * recognition1.getConfidence())) + "%");
       }
 
       Recognition recognition2 = results.get(2);
       if (recognition2 != null) {
-        if (recognition2.getTitle() != null) recognition2TextView.setText(recognition2.getTitle());
+        if (recognition2.getTitle() != null) recognition3TextView.setText(recognition2.getTitle());
         if (recognition2.getConfidence() != null)
-          recognition2ValueTextView.setText(
+          recognition3ValueTextView.setText(
               String.format("%.2f", (100 * recognition2.getConfidence())) + "%");
       }
     }
@@ -504,6 +517,42 @@ public abstract class CameraActivity extends AppCompatActivity
       this.numThreads = numThreads;
       onInferenceConfigurationChanged();
     }
+  }
+
+  //instanziazione db
+  private CiboDb db;
+  private CiboDb getDatabaseManager(){
+      if(db==null)
+          db=CiboDb.getDatabase(this);
+      return db;
+  }
+
+  // Definition of onClick used for the TextViews of the detected items.
+  // This allows the user to select the desired food by simply clicking on the text
+  @Override
+  public void onClick (View v) {
+      //creo oggetto di tipo Cibo, il cui testo è passato come parametro e lo inserisco nel database
+      Cibo elemento= new Cibo();
+
+      //choose textView to get the text from
+      switch (v.getId()) {
+          case R.id.detection_1:
+              elemento.text= recognition1TextView.getText().toString();
+              break;
+          case R.id.detection_2:
+              elemento.text= recognition2TextView.getText().toString();
+              break;
+          case R.id.detection_3:
+              elemento.text= recognition3TextView.getText().toString();
+              break;
+      }
+      getDatabaseManager().noteModel().insertCibo(elemento);
+
+      // notify the calling activity of the result (it will open the Dialog used to insert
+      // grams of the food selected in this activity) and close this one
+      Intent aggiungi=new Intent(this, MealActivity.class);
+      setResult(Activity.RESULT_OK, aggiungi);
+      finish();
   }
 
   protected abstract void processImage();

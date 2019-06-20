@@ -1,6 +1,7 @@
 package gruppoembedded.pse1819.unipd.project;
 
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -81,8 +82,10 @@ public class InsertActivity extends AppCompatActivity {
         elemento.text=pietanza;
         getDatabaseManager().noteModel().insertCibo(elemento);
 
-        //in seguito torno all'activity di riepilogo
+        // notify the calling activity of the result (it will open the Dialog used to insert
+        // grams of the food selected in this activity) and close this one
         Intent aggiungi=new Intent(this, MealActivity.class);
-        startActivityForResult(aggiungi,0);
+        setResult(Activity.RESULT_OK, aggiungi);
+        finish();
     }
 }
