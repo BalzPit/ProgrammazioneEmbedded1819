@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <com.github.mikephil.charting.charts.PieChart
+        android:id="@+id/chart"
+        android:layout_width="578dp"
+        android:layout_height="283dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintHorizontal_bias="0.465"/>
+
+    <Button
+        android:id="@+id/pranzo"
+        android:layout_width="150dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="20dp"
+        android:text="@string/pranzo"
+        app:layout_constraintEnd_toEndOf="@+id/chart"
+        app:layout_constraintTop_toTopOf="@+id/chart" />
+
+    <Button
+        android:id="@+id/cena"
+        android:layout_width="150dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="32dp"
+        android:text="@string/cena"
+        app:layout_constraintEnd_toEndOf="@+id/pranzo"
+        app:layout_constraintTop_toBottomOf="@+id/pranzo" />
+
+    <Button
+        android:id="@+id/snack"
+        android:layout_width="150dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="32dp"
+        android:text="@string/snacks"
+        app:layout_constraintStart_toStartOf="@+id/colazione"
+        app:layout_constraintTop_toBottomOf="@+id/colazione" />
+
+    <Button
+        android:id="@+id/colazione"
+        android:layout_width="150dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="20dp"
+        android:text="@string/colazione"
+        app:layout_constraintStart_toStartOf="@+id/chart"
+        app:layout_constraintTop_toTopOf="@+id/chart" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
