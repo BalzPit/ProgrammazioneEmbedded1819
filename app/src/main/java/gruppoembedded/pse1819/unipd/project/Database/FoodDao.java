@@ -8,22 +8,23 @@ import androidx.room.Insert;
 import androidx.room.Query;
 
 import static androidx.room.OnConflictStrategy.REPLACE;
-@Dao
-public interface CiboDao {
-    @Insert(onConflict = REPLACE)
-    void insertCibo(Cibo cibo);
 
-    @Query("SELECT * FROM Cibo")
-    List<Cibo> loadAllCibi();
+@Dao
+public interface FoodDao {
+    @Insert(onConflict = REPLACE)
+    void insertFood(Food cibo);
+
+    @Query("SELECT * FROM Food")
+    List<Food> loadAllFood();
 
     //in questo modo posso fare ricerche mirate, per id o testo
-    @Query("SELECT * FROM Cibo WHERE id LIKE :search ")
-    List<Cibo> findCiboWithName(String search);
+    @Query("SELECT * FROM Food WHERE nome LIKE :search ")
+    List<Food> findFoodWithName(String search);
 
 
-    @Query("DELETE FROM Cibo")
+    @Query("DELETE FROM Food")
     void deleteAll();
 
     @Delete
-    void deleteCibo(Cibo n);
+    void deleteFood(Food n);
 }
