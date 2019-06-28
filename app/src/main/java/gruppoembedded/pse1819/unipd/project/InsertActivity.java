@@ -149,6 +149,7 @@ public class InsertActivity extends AppCompatActivity {
         // notify the calling activity of the result (it will open the Dialog used to insert
         // grams of the food selected in this activity) and close this one
         Intent aggiungi=new Intent(this, MealActivity.class);
+        aggiungi.putExtra("piet", "nome");
         setResult(Activity.RESULT_OK, aggiungi);
         finish();
     }

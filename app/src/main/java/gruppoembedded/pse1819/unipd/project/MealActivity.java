@@ -57,9 +57,9 @@ public class MealActivity extends AppCompatActivity {
 
         if (requestCode == GET_FOOD) {
             if (resultCode == Activity.RESULT_OK) {
-                String[] nameproducts = trovaProdottiConDb(titolo());
+                String[][] nameproducts = trovaProdottiConDb(titolo());
                 int position = nameproducts.length - 1;
-                ListView mylist = findViewById(R.id.slectedfoodslistView);
+                ListView mylist = findViewById(R.id.selectedfoodslistView);
 
                 //create illusion of having the list item selected
                 mylist.requestFocusFromTouch();
@@ -69,6 +69,10 @@ public class MealActivity extends AppCompatActivity {
                 mylist.performItemClick(mylist.getChildAt(position),
                         position,
                         mylist.getAdapter().getItemId(position));
+
+                //con il nome della pietanza posso accedere al metodo che attua il salvataggio
+                String pietanza = data.getStringExtra("piet");
+                Log.d(TAG, "qui posso prendere l'intent: "+ pietanza);
             }
         }
     }
@@ -83,19 +87,27 @@ public class MealActivity extends AppCompatActivity {
 
     private void creat_table() {
         // definisco un array di stringhe
-        String[] nameproducts =trovaProdottiConDb(titolo());
+        //String[] nameproducts =trovaProdottiConDb(titolo());
+        String[][] nameproducts = trovaProdottiConDb(titolo());
 
         // definisco un ArrayList
-        final ArrayList<String> listp = new ArrayList<String>();
+        /*final ArrayList<String> listp = new ArrayList<String>();
         for (int i = 0; i < nameproducts.length; ++i) {
             listp.add(nameproducts[i]);
+        }*/
+
+        ArrayList<Object> lista= new ArrayList<>();
+        //inserisco gli elementi nella lista da passare all'adapter
+        for(int i=0; i< nameproducts.length; i++){
+            lista.add(nameproducts[i]);
         }
 
         // recupero la lista dal layout
-        final ListView mylist = (ListView) findViewById(R.id.slectedfoodslistView);
+        final ListView mylist = (ListView) findViewById(R.id.selectedfoodslistView);
 
         // creo e istruisco l'adattatore
-        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listp);
+        //final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listp);
+        final FoodListAdapter adapter= new FoodListAdapter(this, R.layout.adapter_layout, lista);
 
         // inietto i dati
         mylist.setAdapter(adapter);
@@ -104,10 +116,10 @@ public class MealActivity extends AppCompatActivity {
         mylist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.d(TAG, "onItemClick: cliccato"+"  "+parent.getItemAtPosition(position));
                 //qui metodo per modificare righe, usare i metodi dell'adattatore per accedere ai dati delle righe
-                onClick(view, parent.getItemAtPosition(position).toString());
-                //ShowPopup(view, parent.getItemAtPosition(position).toString());
+                String a= adapter.name(position);
+                Log.d(TAG, "onItemClick: cliccato"+"  "+a);
+                onClick(view, a, position);
             }
         });
     }
@@ -123,24 +135,9 @@ public class MealActivity extends AppCompatActivity {
             db=DietDb.getDatabase(this);
         return db;
     }
-    //prelevo dati
-    /*private String[] trovaProdottiConDb(String pasto){
-        //ottengo dati dal db
-        List<Cibo> dati=getDatabaseManager().noteModel().loadAllCibi();
-        String[] lista=new String[dati.size()];
-
-        //per ogni oggetto in List<Cibo> ricavo il testo
-        for(int i=0;i<dati.size();i++){
-            Cibo elem=dati.get(i);
-            Log.d(TAG, "trovaProdottiConDb: lista: "+elem.text);
-            lista[i]=elem.text;
-        }
-        return lista;
-    }*/
-
 
     //prelevo dati dei cibi associati al pasto di un giorno
-    private String[] trovaProdottiConDb(String pasto){
+    private String[][] trovaProdottiConDb(String pasto){
         //ottengo dati dal db
         List<Meal> dati=getDatabaseManager().noteModelMeal().loadAllMeals();
         Meal mioPasto=new Meal();
@@ -159,7 +156,7 @@ public class MealActivity extends AppCompatActivity {
         }
 
         //il compilatore vuole necessariamente una pre-inizializzazione dell'elemento lista
-        String[] lista=new String[0];
+        String[][] lista=new String[0][0];
 
         //estrazione cibi
         try {
@@ -168,11 +165,14 @@ public class MealActivity extends AppCompatActivity {
                 Log.d(TAG, "entrato "+ mioPasto.cibiDiOggi);
                 JSONArray cibiArr=new JSONArray("[" + mioPasto.cibiDiOggi + "]");
                 Log.d(TAG, "cibiArr: " + cibiArr);
-                lista=new String[cibiArr.length()];
+                lista=new String[cibiArr.length()][2];
 
                 for (int i = 0; i < cibiArr.length(); i++) {
                     JSONObject obj = new JSONObject(cibiArr.get(i).toString());
-                    String x = obj.getString("nome");
+                    //ogni elemento x della lista è un array di 2 elementi
+                    String[] x = new String[2];
+                    x[0] = obj.getString("nome");
+                    x[1] = obj.getString("quantità");
                     lista[i] = x;
 
                 }
@@ -186,10 +186,9 @@ public class MealActivity extends AppCompatActivity {
     }
 
 
-
     //metodo per il dialog che funziona
     final Context context = this;
-    public void onClick(View arg0, String testo) {
+    public void onClick(View arg0, final String pasto, final int posizione) {
 
         // custom dialog
         final Dialog dialog = new Dialog(context);
@@ -198,7 +197,7 @@ public class MealActivity extends AppCompatActivity {
 
         // settaggio componenti pop-up
         TextView text = (TextView) dialog.findViewById(R.id.testo);
-        text.setText(testo);
+        text.setText(pasto);
 
         final NumberPicker gramsPicker= dialog.findViewById(R.id.grams_picker);
         gramsPicker.setMinValue(0);
@@ -215,11 +214,11 @@ public class MealActivity extends AppCompatActivity {
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "onClick: azioni prima della chiusura");
 
                 int selectedgrams = gramsPicker.getValue();
 
                 //!!!!======= SAVE SELECTED GRAMS OF THAT FOOD TO DATABASE =====!!!!
+                aggiornaDati(pasto, posizione, selectedgrams);
 
                 dialog.dismiss();
             }
@@ -234,14 +233,120 @@ public class MealActivity extends AppCompatActivity {
                 Log.d(TAG, "cancella cibo dal db");
 
                 //!!!!!===== DELETE the selected FOOD FROM this meal =====!!!!!!
+                delete(pasto, posizione);
 
-                //update the list on the activity and close the dialog window
-                creat_table();
                 dialog.dismiss();
             }
         });
 
         dialog.show();
+    }
+
+    public void aggiornaDati(String pasto, int posiz, int grammi){
+        //ottengo dati dal db
+        List<Meal> dati=getDatabaseManager().noteModelMeal().loadAllMeals();
+        Meal mioPasto=new Meal();
+
+        //cerco il nome del pasto che mi interessa nella lista
+        for(int i=0;i<dati.size();i++){
+            Meal elem=dati.get(i);
+            Log.d(TAG, "inizio modifica, dati: "+titolo());
+
+            //uso ignoreCase perché "pasto" inizia con la lettera maiuscola
+            if(elem.nome.compareToIgnoreCase(titolo())==0){
+                //se il nome combacia con quello che cerco lo salvo, poi estraggo tutti i cibi in esso contenuti
+                mioPasto=elem;
+                break;
+            }
+        }
+
+        //estrazione cibi
+        try {
+            if(mioPasto.cibiDiOggi!=null) {
+
+                JSONArray cibiArr=new JSONArray("[" + mioPasto.cibiDiOggi + "]");
+                //NB! non salvo direttamente la stringa con le parentesi per evitare di fare un parsing
+                // ogni volta che devo inserire un nuovo elemento
+                Log.d(TAG, "fatto cibiArr: "+cibiArr);
+
+                //per il nuovo elemento devo tenere lo stesso nome
+                JSONObject obj = new JSONObject(cibiArr.get(posiz).toString());
+                String pietanza = obj.getString("nome");
+
+                //creo un elemento nuovo, con i grammi modificati e aggiorno i dati nell'array
+                JSONObject cibo = new JSONObject();
+                cibo.put("nome",pietanza);
+                cibo.put("quantità",grammi);
+                cibiArr.put(posiz,cibo);
+
+                //ora devo inserire la stringa modificata nel database
+                String modifica= cibiArr.toString();
+                int lung=modifica.length();
+                //prima bisogna togliere le parentesi quadre
+                modifica=modifica.substring(1,lung-1);
+                Log.d(TAG, "modifica eseguita: "+modifica);
+
+                mioPasto.cibiDiOggi = modifica;
+                getDatabaseManager().noteModelMeal().insertMeal(mioPasto);
+                //invoco create_table per aggiornare la lista
+                creat_table();
+
+            }else {
+                Log.d(TAG, "qualcosa non va");
+            }
+        }catch(Exception e){
+            Log.d(TAG, "eccezzione: "+e);
+        }
+    }
+
+    public void delete(String pasto, int pos){
+        //ottengo dati dal db
+        List<Meal> dati=getDatabaseManager().noteModelMeal().loadAllMeals();
+        Meal mioPasto=new Meal();
+
+        //cerco il nome del pasto che mi interessa nella lista
+        for(int i=0;i<dati.size();i++){
+            Meal elem=dati.get(i);
+            Log.d(TAG, "inizio modifica, dati: "+titolo());
+
+            //uso ignoreCase perché "pasto" inizia con la lettera maiuscola
+            if(elem.nome.compareToIgnoreCase(titolo())==0){
+                //se il nome combacia con quello che cerco lo salvo, poi estraggo tutti i cibi in esso contenuti
+                mioPasto=elem;
+                break;
+            }
+        }
+
+        //estrazione cibi
+        try {
+            if(mioPasto.cibiDiOggi!=null) {
+
+                JSONArray cibiArr=new JSONArray("[" + mioPasto.cibiDiOggi + "]");
+                //NB! non salvo direttamente la stringa con le parentesi per evitare di fare un parsing
+                // ogni volta che devo inserire un nuovo elemento
+                Log.d(TAG, "fatto cibiArr: "+cibiArr);
+
+                //per il nuovo elemento devo tenere lo stesso nome
+                cibiArr.remove(pos);
+
+                //ora devo inserire la stringa modificata nel database
+                String modifica= cibiArr.toString();
+                int lung=modifica.length();
+                //prima bisogna togliere le parentesi quadre
+                modifica=modifica.substring(1,lung-1);
+                Log.d(TAG, "eliminazione eseguita: "+modifica);
+
+                mioPasto.cibiDiOggi = modifica;
+                getDatabaseManager().noteModelMeal().insertMeal(mioPasto);
+                //invoco create_table per aggiornare la lista
+                creat_table();
+
+            }else {
+                Log.d(TAG, "qualcosa non va");
+            }
+        }catch(Exception e){
+            Log.d(TAG, "eccezzione: "+e);
+        }
     }
 
     //metodo di accesso alla lista di selezione cibi
