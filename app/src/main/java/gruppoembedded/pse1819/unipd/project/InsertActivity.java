@@ -18,6 +18,7 @@ import java.util.List;
 
 import androidx.appcompat.app.AppCompatActivity;
 //quelli in inglese
+import gruppoembedded.pse1819.unipd.project.Database.DbSupport;
 import gruppoembedded.pse1819.unipd.project.Database.DietDb;
 import gruppoembedded.pse1819.unipd.project.Database.Food;
 import gruppoembedded.pse1819.unipd.project.Database.Meal;
@@ -27,6 +28,7 @@ public class InsertActivity extends AppCompatActivity {
     //la lista prodotti dovrà essere implementata nel database
     //private String[] listaProdotti={"pasta","bistecca","formaggio","risotto","yogurt"};
     private static final String TAG="InsertActivityMine";
+    public DbSupport support= new DbSupport(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,9 +72,19 @@ public class InsertActivity extends AppCompatActivity {
 
                 //scopro qual è l'elemento della tabella pasti al quale aggiungere i cibi
                 String pasto = riceviIntent();
-                inserimento(parent.getItemAtPosition(position).toString(),pasto);
+                support.inserimento(parent.getItemAtPosition(position).toString(),pasto);
+
+                ritorna();
             }
         });
+    }
+    public void ritorna(){
+        // notify the calling activity of the result (it will open the Dialog used to insert
+        // grams of the food selected in this activity) and close this one
+        Intent aggiungi=new Intent(this, MealActivity.class);
+        aggiungi.putExtra("piet", "nome");
+        setResult(Activity.RESULT_OK, aggiungi);
+        finish();
     }
 
     private String riceviIntent(){
@@ -82,19 +94,9 @@ public class InsertActivity extends AppCompatActivity {
         return pasto;
     }
 
-    //inserimento dati nel database
-
-    //instanziazione db
-    private DietDb db;
-    private DietDb getDatabaseManager(){
-        if(db==null)
-            db=DietDb.getDatabase(this);
-        return db;
-    }
-
     private String[] listaProdotti(){
         //ottengo dati dal db
-        List<Food> dati=getDatabaseManager().noteModelFood().loadAllFood();
+        List<Food> dati=support.getDatabaseManager().noteModelFood().loadAllFood();
         String[] lista=new String[dati.size()];
 
         //per ogni oggetto in List<Cibo> ricavo il testo
@@ -105,7 +107,17 @@ public class InsertActivity extends AppCompatActivity {
         return lista;
     }
 
-    public void inserimento(String pietanza, String pasto){
+    //inserimento dati nel database
+
+    //instanziazione db
+    /*private DietDb db;
+    private DietDb getDatabaseManager(){
+        if(db==null)
+            db=DietDb.getDatabase(this);
+        return db;
+    }*/
+
+    /*public void inserimento(String pietanza, String pasto){
         try {
             //se il pasto non esiste viene lanciata un'eccezione
             Meal pastoAttuale = getDatabaseManager().noteModelMeal().findMealWithName(pasto).get(0);
@@ -150,19 +162,6 @@ public class InsertActivity extends AppCompatActivity {
         // grams of the food selected in this activity) and close this one
         Intent aggiungi=new Intent(this, MealActivity.class);
         aggiungi.putExtra("piet", "nome");
-        setResult(Activity.RESULT_OK, aggiungi);
-        finish();
-    }
-
-    /*private void insert(String pietanza){
-        //creo oggetto di tipo Cibo, il cui testo è passato come parametro e lo inserisco nel database
-        Cibo elemento= new Cibo();
-        elemento.text=pietanza;
-        getDatabaseManager().noteModel().insertCibo(elemento);
-
-        // notify the calling activity of the result (it will open the Dialog used to insert
-        // grams of the food selected in this activity) and close this one
-        Intent aggiungi=new Intent(this, MealActivity.class);
         setResult(Activity.RESULT_OK, aggiungi);
         finish();
     }*/

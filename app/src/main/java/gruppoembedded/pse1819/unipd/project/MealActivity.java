@@ -4,6 +4,7 @@ package gruppoembedded.pse1819.unipd.project;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 //quelli in inglese
+import gruppoembedded.pse1819.unipd.project.Database.DbSupport;
 import gruppoembedded.pse1819.unipd.project.Database.DietDb;
 import gruppoembedded.pse1819.unipd.project.Database.Meal;
 import gruppoembedded.pse1819.unipd.project.tensorflowlite.ClassifierActivity;
@@ -32,6 +33,7 @@ public class MealActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivityPrinc";
     private static final int GET_FOOD = 1;
+    public DbSupport support= new DbSupport(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,22 +140,7 @@ public class MealActivity extends AppCompatActivity {
 
     //prelevo dati dei cibi associati al pasto di un giorno
     private String[][] trovaProdottiConDb(String pasto){
-        //ottengo dati dal db
-        List<Meal> dati=getDatabaseManager().noteModelMeal().loadAllMeals();
-        Meal mioPasto=new Meal();
-        Log.d(TAG, "lista pasti: "+dati);
-
-        //cerco il nome del pasto che mi interessa nella lista
-        for(int i=0;i<dati.size();i++){
-            Meal elem=dati.get(i);
-
-            //uso ignoreCase perché "pasto" inizia con la lettera maiuscola
-            if(elem.nome.compareToIgnoreCase(pasto)==0){
-                //se il nome combacia con quello che cerco lo salvo, poi estraggo tutti i cibi in esso contenuti
-                mioPasto=elem;
-                break;
-            }
-        }
+        Meal mioPasto=support.identificaPasto(titolo());
 
         //il compilatore vuole necessariamente una pre-inizializzazione dell'elemento lista
         String[][] lista=new String[0][0];
@@ -243,22 +230,7 @@ public class MealActivity extends AppCompatActivity {
     }
 
     public void aggiornaDati(String pasto, int posiz, int grammi){
-        //ottengo dati dal db
-        List<Meal> dati=getDatabaseManager().noteModelMeal().loadAllMeals();
-        Meal mioPasto=new Meal();
-
-        //cerco il nome del pasto che mi interessa nella lista
-        for(int i=0;i<dati.size();i++){
-            Meal elem=dati.get(i);
-            Log.d(TAG, "inizio modifica, dati: "+titolo());
-
-            //uso ignoreCase perché "pasto" inizia con la lettera maiuscola
-            if(elem.nome.compareToIgnoreCase(titolo())==0){
-                //se il nome combacia con quello che cerco lo salvo, poi estraggo tutti i cibi in esso contenuti
-                mioPasto=elem;
-                break;
-            }
-        }
+        Meal mioPasto=support.identificaPasto(titolo());
 
         //estrazione cibi
         try {
@@ -300,22 +272,7 @@ public class MealActivity extends AppCompatActivity {
     }
 
     public void delete(String pasto, int pos){
-        //ottengo dati dal db
-        List<Meal> dati=getDatabaseManager().noteModelMeal().loadAllMeals();
-        Meal mioPasto=new Meal();
-
-        //cerco il nome del pasto che mi interessa nella lista
-        for(int i=0;i<dati.size();i++){
-            Meal elem=dati.get(i);
-            Log.d(TAG, "inizio modifica, dati: "+titolo());
-
-            //uso ignoreCase perché "pasto" inizia con la lettera maiuscola
-            if(elem.nome.compareToIgnoreCase(titolo())==0){
-                //se il nome combacia con quello che cerco lo salvo, poi estraggo tutti i cibi in esso contenuti
-                mioPasto=elem;
-                break;
-            }
-        }
+        Meal mioPasto=support.identificaPasto(titolo());
 
         //estrazione cibi
         try {

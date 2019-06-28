@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+
+import gruppoembedded.pse1819.unipd.project.Database.DbSupport;
 import gruppoembedded.pse1819.unipd.project.Database.DietDb;
 import gruppoembedded.pse1819.unipd.project.Database.Food;
 import gruppoembedded.pse1819.unipd.project.Database.FoodDao;
@@ -16,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class StartActivity extends AppCompatActivity {
     private static final String TAG = "StartActivityTag";
+    public DbSupport support= new DbSupport(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -42,34 +45,34 @@ public class StartActivity extends AppCompatActivity {
     }
 
     //instanziazione db
-    private DietDb db;
+    /*private DietDb db;
     private DietDb getDatabaseManager(){
         if(db==null)
             db=DietDb.getDatabase(this);
         return db;
-    }
+    }*/
 
     private void istanziaFood(){
         //l'istanziazione viene fatta solo se è la prima volta che l'app viene installata, e quindi non esiste anoora il database
-        if(getDatabaseManager().noteModelFood().loadAllFood().size()==0) {
+        if(support.getDatabaseManager().noteModelFood().loadAllFood().size()==0) {
             Log.i(TAG, "onCreate: sto eseguendo istanziazione");
-            
+
             Food elemento = new Food();
             elemento.nome = "spaghetti_bolognese";
             elemento.KcalPerUnit = 130;
-            getDatabaseManager().noteModelFood().insertFood(elemento);
+            support.getDatabaseManager().noteModelFood().insertFood(elemento);
             elemento.nome = "pizza";
             elemento.KcalPerUnit = 900;
-            getDatabaseManager().noteModelFood().insertFood(elemento);
+            support.getDatabaseManager().noteModelFood().insertFood(elemento);
             elemento.nome = "risotto";
             elemento.KcalPerUnit = 200;
-            getDatabaseManager().noteModelFood().insertFood(elemento);
+            support.getDatabaseManager().noteModelFood().insertFood(elemento);
             elemento.nome = "donuts";
             elemento.KcalPerUnit = 50;
-            getDatabaseManager().noteModelFood().insertFood(elemento);
+            support.getDatabaseManager().noteModelFood().insertFood(elemento);
             elemento.nome = "chocolate_cake";
             elemento.KcalPerUnit = 150;
-            getDatabaseManager().noteModelFood().insertFood(elemento);
+            support.getDatabaseManager().noteModelFood().insertFood(elemento);
         }
     }
 }
