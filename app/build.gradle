@@ -21,6 +21,10 @@ android {
     }
 }
 
+repositories {
+    maven { url "https://jitpack.io" }
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:appcompat-v7:28.0.0'
@@ -34,4 +38,7 @@ dependencies {
     //aggiunte per usare room
     implementation 'android.arch.persistence.room:runtime:1.0.0'
     annotationProcessor "android.arch.persistence.room:compiler:1.0.0"
+
+    //libreria per il grafico a torta
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.0.1'
 }

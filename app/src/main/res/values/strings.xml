@@ -14,6 +14,8 @@
   
     <string name="pranzo">pranzo</string>
     <string name="cena">cena</string>
+    <string name="colazione">colazione</string>
+    <string name="snacks">snacks</string>
 
     <string name="model">Model:</string>
     <string-array name="models">
