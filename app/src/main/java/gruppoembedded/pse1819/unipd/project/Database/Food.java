@@ -4,16 +4,20 @@ import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName = "Cibo")
-public class Cibo {
+@Entity
+public class Food {
+
     @PrimaryKey(autoGenerate = true)
     @NonNull
     public long id;
 
     @NonNull
-    public String text;
+    public String nome;
     @Override
     public String toString() {
-        return String.format("%s (id = %d)", text, id);
+        return String.format("%s", nome);
     }
+
+    @NonNull
+    public long KcalPerUnit;
 }

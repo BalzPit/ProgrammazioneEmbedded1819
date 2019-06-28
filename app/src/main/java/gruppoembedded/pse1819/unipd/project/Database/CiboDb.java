@@ -7,9 +7,9 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
-@Database(entities = {Cibo.class}, version = 1, exportSchema = false)
+//@Database(entities = {Cibo.class}, version = 1, exportSchema = false)
 public abstract class CiboDb extends RoomDatabase {
-    private static CiboDb INSTANCE;
+    /*private static CiboDb INSTANCE;
     public abstract CiboDao noteModel();
 
     // database in memory è temporaneo, viene distrutto alla chiusura dell'applicazione
@@ -32,5 +32,5 @@ public abstract class CiboDb extends RoomDatabase {
     }
     public static void destroyInstance() {
         INSTANCE = null;
-    }
+    }*/
 }
