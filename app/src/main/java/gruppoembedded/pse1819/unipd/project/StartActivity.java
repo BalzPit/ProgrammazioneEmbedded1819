@@ -53,18 +53,23 @@ public class StartActivity extends AppCompatActivity {
         //l'istanziazione viene fatta solo se è la prima volta che l'app viene installata, e quindi non esiste anoora il database
         if(getDatabaseManager().noteModelFood().loadAllFood().size()==0) {
             Log.i(TAG, "onCreate: sto eseguendo istanziazione");
+            
             Food elemento = new Food();
-            elemento.nome = "pasta";
+            elemento.nome = "spaghetti_bolognese";
+            elemento.KcalPerUnit = 130;
             getDatabaseManager().noteModelFood().insertFood(elemento);
             elemento.nome = "pizza";
+            elemento.KcalPerUnit = 900;
             getDatabaseManager().noteModelFood().insertFood(elemento);
-            elemento.nome = "carne";
+            elemento.nome = "risotto";
+            elemento.KcalPerUnit = 200;
             getDatabaseManager().noteModelFood().insertFood(elemento);
-            elemento.nome = "yogurt";
+            elemento.nome = "donuts";
+            elemento.KcalPerUnit = 50;
             getDatabaseManager().noteModelFood().insertFood(elemento);
-            elemento.nome = "mela";
+            elemento.nome = "chocolate_cake";
+            elemento.KcalPerUnit = 150;
             getDatabaseManager().noteModelFood().insertFood(elemento);
-            Log.i(TAG, "onCreate: ho crashato");
         }
     }
 }

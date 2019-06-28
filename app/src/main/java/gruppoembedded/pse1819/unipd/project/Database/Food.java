@@ -18,7 +18,6 @@ public class Food {
         return String.format("%s", nome);
     }
 
-    //serve perché così posso sapere se la tabella dei cibi è già stata creata
     @NonNull
-    int instanziato=0;
+    public long KcalPerUnit;
 }
