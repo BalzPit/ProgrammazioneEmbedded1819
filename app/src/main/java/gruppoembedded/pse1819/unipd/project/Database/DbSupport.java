@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 
 public class DbSupport extends AppCompatActivity {
-    private static final String TAG = "actSupport";
+    private static final String TAG = "DbSupport";
 
     private static Context context;
 
@@ -75,7 +75,7 @@ public class DbSupport extends AppCompatActivity {
         //ottengo dati dal db
         List<Meal> dati=getDatabaseManager().noteModelMeal().loadAllMeals();
         Meal mioPasto=new Meal();
-        Log.d(TAG, "lista pasti: "+dati);
+        Log.i(TAG, "lista pasti: "+dati);
 
         //cerco il nome del pasto che mi interessa nella lista
         for(int i=0;i<dati.size();i++){
