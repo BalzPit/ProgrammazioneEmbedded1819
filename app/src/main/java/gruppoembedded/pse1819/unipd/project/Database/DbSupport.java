@@ -1,6 +1,7 @@
 package gruppoembedded.pse1819.unipd.project.Database;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import org.json.JSONObject;
@@ -32,7 +33,7 @@ public class DbSupport extends AppCompatActivity {
         try {
             //se il pasto non esiste viene lanciata un'eccezione
             Meal pastoAttuale = getDatabaseManager().noteModelMeal().findMealWithName(pasto).get(0);
-            Log.i(TAG, "l'elemento esiste");
+
             //creo Json con i cibiDiOggi
             try {
                 JSONObject cibo = new JSONObject();
@@ -41,7 +42,14 @@ public class DbSupport extends AppCompatActivity {
                 //aggiungo nuovo elemento cibo e aggiorno il database (NB: l'elemento pastoAttuale sostituisce quello precedente)
                 cibo.put("nome",pietanza);
                 cibo.put("quantità","-");
-                pastoAttuale.cibiDiOggi=pastoAttuale.cibiDiOggi +","+ cibo.toString();
+
+                //esiste la possibilità che la lista sia vuota, ad esempio dopo una rimozione
+                if(pastoAttuale.cibiDiOggi.equals("")){
+                    pastoAttuale.cibiDiOggi = cibo.toString();
+                }
+                else{
+                    pastoAttuale.cibiDiOggi=pastoAttuale.cibiDiOggi +","+ cibo.toString();
+                }
                 getDatabaseManager().noteModelMeal().insertMeal(pastoAttuale);
 
             } catch (Exception e) {
@@ -62,9 +70,10 @@ public class DbSupport extends AppCompatActivity {
                 cibi.put("nome", pietanza);
                 cibi.put("quantità", "-");
                 String cibiConvertiti=cibi.toString();
-                nuovoPasto.cibiDiOggi=cibiConvertiti;
+                nuovoPasto.cibiDiOggi=cibi.toString();
                 //inserisco il pasto nella tabella corrispondente
                 getDatabaseManager().noteModelMeal().insertMeal(nuovoPasto);
+
             }catch(Exception e){
                 Log.i(TAG, "insert: eccezzione sul put: " + e);
             }
@@ -75,7 +84,7 @@ public class DbSupport extends AppCompatActivity {
         //ottengo dati dal db
         List<Meal> dati=getDatabaseManager().noteModelMeal().loadAllMeals();
         Meal mioPasto=new Meal();
-        Log.i(TAG, "lista pasti: "+dati);
+        //Log.i(TAG, "lista pasti: "+dati);
 
         //cerco il nome del pasto che mi interessa nella lista
         for(int i=0;i<dati.size();i++){
