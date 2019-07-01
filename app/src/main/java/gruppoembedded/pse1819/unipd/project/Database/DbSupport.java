@@ -82,7 +82,7 @@ public class DbSupport extends AppCompatActivity {
 
     public Meal identificaPasto(String nomePasto){
         //ottengo dati dal db
-        List<Meal> dati=getDatabaseManager().noteModelMeal().loadAllMeals();
+        /*List<Meal> dati=getDatabaseManager().noteModelMeal().loadAllMeals();
         Meal mioPasto=new Meal();
         //Log.i(TAG, "lista pasti: "+dati);
 
@@ -96,7 +96,11 @@ public class DbSupport extends AppCompatActivity {
                 mioPasto=elem;
                 break;
             }
-        }
+        }*/
+
+        //sistema molto più semplice
+        Meal mioPasto=getDatabaseManager().noteModelMeal().findMealWithName(nomePasto).get(0);
+        Log.i(TAG, "pasto trovato: "+mioPasto);
         return mioPasto;
     }
 }

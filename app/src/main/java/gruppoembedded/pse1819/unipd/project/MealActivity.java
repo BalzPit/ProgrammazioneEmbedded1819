@@ -195,7 +195,7 @@ public class MealActivity extends AppCompatActivity {
                 int selectedgrams = gramsPicker.getValue();
 
                 //!!!!======= SAVE SELECTED GRAMS OF THAT FOOD TO DATABASE =====!!!!
-                update(pasto, posizione, selectedgrams);
+                update(posizione, selectedgrams);
 
                 dialog.dismiss();
             }
@@ -210,7 +210,7 @@ public class MealActivity extends AppCompatActivity {
                 Log.d(TAG, "cancella cibo dal db");
 
                 //!!!!!===== DELETE the selected FOOD FROM this meal =====!!!!!!
-                delete(pasto, posizione);
+                delete(posizione);
 
                 dialog.dismiss();
             }
@@ -219,7 +219,7 @@ public class MealActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    public void update(String pasto, int posiz, int grammi){
+    public void update(int posiz, int grammi){
         Meal mioPasto=support.identificaPasto(titolo());
 
         //estrazione cibi
@@ -261,7 +261,7 @@ public class MealActivity extends AppCompatActivity {
         }
     }
 
-    public void delete(String pasto, int pos){
+    public void delete(int pos){
         Meal mioPasto=support.identificaPasto(titolo());
 
         //estrazione cibi

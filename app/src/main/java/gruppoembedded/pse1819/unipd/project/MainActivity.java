@@ -203,7 +203,7 @@ public class MainActivity extends AppCompatActivity /*implements View.OnClickLis
 
     private int findCalories(String nome){
         //carico la lista di tutti i cibi salvati a database
-        List<Food> listaCibi=support.getDatabaseManager().noteModelFood().loadAllFood();
+        /*List<Food> listaCibi=support.getDatabaseManager().noteModelFood().loadAllFood();
         Food mioCibo=new Food();
 
         //cerco il nome del cibo che mi interessa nella lista
@@ -216,8 +216,13 @@ public class MainActivity extends AppCompatActivity /*implements View.OnClickLis
                 Log.i(TAG, "calorie elem trovato: " + mioCibo.KcalPerUnit + "  nome: "+ mioCibo.nome);
                 break;
             }
-        }
-        return (int)mioCibo.KcalPerUnit;
+        }*/
+
+        //cerco il cibo corretto nel db ed estraggo le Kcal... sistema molto più semplice
+        Food elem=support.getDatabaseManager().noteModelFood().findFoodWithName(nome);
+        Log.i(TAG, "test su cibi: " + elem.KcalPerUnit);
+
+        return (int)elem.KcalPerUnit;
     }
 
     private void istantiateFood(){
