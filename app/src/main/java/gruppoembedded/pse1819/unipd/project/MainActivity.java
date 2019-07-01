@@ -155,7 +155,7 @@ public class MainActivity extends AppCompatActivity /*implements View.OnClickLis
             int valoreNutrizionale=findCalories(cibiDelGiorno[i][0]);
 
             //eseguo calcolo calorie
-            calTot= (int) (calTot+(quantità*valoreNutrizionale)/1000);
+            calTot= (int) (calTot+(quantità*valoreNutrizionale)/100);
         }
 
 
@@ -227,25 +227,31 @@ public class MainActivity extends AppCompatActivity /*implements View.OnClickLis
 
             Food elemento = new Food();
             elemento.nome = "chocolate_cake";
-            elemento.KcalPerUnit = 150;
+            elemento.KcalPerUnit = 371;
             support.getDatabaseManager().noteModelFood().insertFood(elemento);
             elemento.nome = "chicken_wings";
-            elemento.KcalPerUnit = 90;
+            elemento.KcalPerUnit = 203;
             support.getDatabaseManager().noteModelFood().insertFood(elemento);
             elemento.nome = "cheescake";
-            elemento.KcalPerUnit = 400;
+            elemento.KcalPerUnit = 321;
             support.getDatabaseManager().noteModelFood().insertFood(elemento);
             elemento.nome = "donuts";
-            elemento.KcalPerUnit = 50;
+            elemento.KcalPerUnit = 452;
             support.getDatabaseManager().noteModelFood().insertFood(elemento);
             elemento.nome = "pizza";
-            elemento.KcalPerUnit = 900;
+            elemento.KcalPerUnit = 266;
+            support.getDatabaseManager().noteModelFood().insertFood(elemento);
+            elemento.nome = "ramen";
+            elemento.KcalPerUnit = 436;
             support.getDatabaseManager().noteModelFood().insertFood(elemento);
             elemento.nome = "risotto";
-            elemento.KcalPerUnit = 200;
+            elemento.KcalPerUnit = 359;
             support.getDatabaseManager().noteModelFood().insertFood(elemento);
             elemento.nome = "spaghetti_bolognese";
-            elemento.KcalPerUnit = 130;
+            elemento.KcalPerUnit = 430;
+            support.getDatabaseManager().noteModelFood().insertFood(elemento);
+            elemento.nome = "steak";
+            elemento.KcalPerUnit = 271;
             support.getDatabaseManager().noteModelFood().insertFood(elemento);
             elemento.nome = "sushi";
             elemento.KcalPerUnit = 100;
