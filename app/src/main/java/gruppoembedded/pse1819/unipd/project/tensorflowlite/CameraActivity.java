@@ -54,6 +54,7 @@ import java.util.List;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import gruppoembedded.pse1819.unipd.project.Database.DbSupport;
 import gruppoembedded.pse1819.unipd.project.Database.DietDb;
 import gruppoembedded.pse1819.unipd.project.Database.Meal;
 import gruppoembedded.pse1819.unipd.project.MealActivity;
@@ -95,6 +96,9 @@ public abstract class CameraActivity extends AppCompatActivity
   private Model model = Model.FLOAT;
   private Device device = Device.CPU;
   private int numThreads = -1;
+
+
+  public DbSupport support= new DbSupport(this);
 
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
@@ -522,25 +526,10 @@ public abstract class CameraActivity extends AppCompatActivity
     }
   }
 
-  //instanziazione db
-  /*private CiboDb db;
-  private CiboDb getDatabaseManager(){
-      if(db==null)
-          db=CiboDb.getDatabase(this);
-      return db;
-  }*/
   private String riceviIntent(){
     Intent intent=getIntent();
     String pasto=intent.getStringExtra("nome");
     return pasto;
-  }
-
-  //instanziazione db
-  private DietDb db;
-  private DietDb getDatabaseManager(){
-    if(db==null)
-      db=DietDb.getDatabase(this);
-    return db;
   }
 
   // Definition of onClick used for the TextViews of the detected items.
@@ -564,56 +553,12 @@ public abstract class CameraActivity extends AppCompatActivity
       }
       //scopro qual è l'elemento della tabella pasti al quale aggiungere i cibi
       String pasto = riceviIntent();
-      inserimento(elemento,pasto);
-  }
-
-  //metodo identico aquello di InsertActivity
-  public void inserimento(String pietanza, String pasto){
-    try {
-      //se il pasto non esiste viene lanciata un'eccezione
-      Meal pastoAttuale = getDatabaseManager().noteModelMeal().findMealWithName(pasto).get(0);
-      Log.i(TAG, "l'elemento esiste");
-      //creo Json con i cibiDiOggi
-      try {
-        JSONObject cibo = new JSONObject();
-        Log.i(TAG, "elementi nel pasto considerato: "+pastoAttuale.cibiDiOggi);
-
-        //aggiungo nuovo elemento cibo e aggiorno il database (NB: l'elemento pastoAttuale sostituisce quello precedente)
-        cibo.put("nome",pietanza);
-        cibo.put("quantità","valore");
-        pastoAttuale.cibiDiOggi=pastoAttuale.cibiDiOggi +","+ cibo.toString();
-        getDatabaseManager().noteModelMeal().insertMeal(pastoAttuale);
-
-      } catch (Exception e) {
-        //in realtà questa non dovrebbe mai essere lanciata, dal momento che il primo elemento
-        //viene inserito correttamente, vedi sotto
-        Log.i(TAG, "insert: eccezzione nella creazione di JSONObject: " + e);
-      }
-
-    }catch(Exception manca) {
-      Log.i(TAG, "eccezione per mancanza elmento pasto: "+manca);
-
-      //perciò ne creo uno nuovo
-      Meal nuovoPasto = new Meal();
-      nuovoPasto.nome = pasto;
-      //una volta creato il pasto insrisco subito il primo elemento cibo
-      JSONObject cibi = new JSONObject();
-      try {
-        cibi.put("nome", pietanza);
-        cibi.put("quantità", "valore");
-        String cibiConvertiti=cibi.toString();
-        nuovoPasto.cibiDiOggi=cibiConvertiti;
-        //inserisco il pasto nella tabella corrispondente
-        getDatabaseManager().noteModelMeal().insertMeal(nuovoPasto);
-      }catch(Exception e){
-        Log.i(TAG, "insert: eccezzione sul put: " + e);
-      }
-    }
-    // notify the calling activity of the result (it will open the Dialog used to insert
-    // grams of the food selected in this activity) and close this one
-    Intent aggiungi=new Intent(this, MealActivity.class);
-    setResult(Activity.RESULT_OK, aggiungi);
-    finish();
+      support.inserimento(elemento,pasto);
+      // notify the calling activity of the result (it will open the Dialog used to insert
+      // grams of the food selected in this activity) and close this one
+      Intent aggiungi=new Intent(this, MealActivity.class);
+      setResult(Activity.RESULT_OK, aggiungi);
+      finish();
   }
 
   protected abstract void processImage();
