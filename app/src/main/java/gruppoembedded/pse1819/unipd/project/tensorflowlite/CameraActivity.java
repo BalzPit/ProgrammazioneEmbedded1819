@@ -49,6 +49,7 @@ import android.widget.Toast;
 import org.json.JSONObject;
 
 import java.nio.ByteBuffer;
+import java.sql.Date;
 import java.util.List;
 
 import androidx.annotation.UiThread;
@@ -57,6 +58,7 @@ import androidx.appcompat.widget.Toolbar;
 import gruppoembedded.pse1819.unipd.project.Database.DbSupport;
 import gruppoembedded.pse1819.unipd.project.Database.DietDb;
 import gruppoembedded.pse1819.unipd.project.Database.Meal;
+import gruppoembedded.pse1819.unipd.project.DateParcelable;
 import gruppoembedded.pse1819.unipd.project.MealActivity;
 import gruppoembedded.pse1819.unipd.project.R;
 import gruppoembedded.pse1819.unipd.project.tensorflowlite.env.ImageUtils;
@@ -97,7 +99,9 @@ public abstract class CameraActivity extends AppCompatActivity
   private Device device = Device.CPU;
   private int numThreads = -1;
 
-
+  //used to save the date
+  private DateParcelable dateParcelable;
+  private Date selectedDate;
   public DbSupport support= new DbSupport(this);
 
   @Override
@@ -117,7 +121,8 @@ public abstract class CameraActivity extends AppCompatActivity
       requestPermission();
     }
 
-
+    //le tre Textview in cui compaiono le prime tre classi con la percentuale di confindenza più alta
+    //tra le possibili e attraverso le quali è possibile selezionare un cibo
     recognition1TextView = findViewById(R.id.detected_item1);
     recognition1ValueTextView = findViewById(R.id.detected_item1_value);
     recognition2TextView = findViewById(R.id.detected_item2);
@@ -127,7 +132,7 @@ public abstract class CameraActivity extends AppCompatActivity
 
     inferenceTimeTextView = findViewById(R.id.inference_info);
 
-    //the user can click any part of the LinearLayout's row that contains the desired food
+    //the user can click any part of the LinearLayout's row that contains the desired food (not only the textviews)
     LinearLayout detection1 = findViewById(R.id.detection_1);
     detection1.setOnClickListener(this);
     LinearLayout detection2 = findViewById(R.id.detection_2);
@@ -135,9 +140,13 @@ public abstract class CameraActivity extends AppCompatActivity
     LinearLayout detection3 = findViewById(R.id.detection_3);
     detection3.setOnClickListener(this);
 
-
-
     model = Model.FLOAT;
+
+    //get the date passed from MainActivity
+      Intent intent= getIntent();
+      dateParcelable = intent.getParcelableExtra("date");
+      selectedDate = dateParcelable.getDate();
+      Log.i(TAG, "Data corrente: "+selectedDate.toString());
   }
 
   protected int[] getRgbBytes() {
@@ -553,12 +562,15 @@ public abstract class CameraActivity extends AppCompatActivity
       }
       //scopro qual è l'elemento della tabella pasti al quale aggiungere i cibi
       String pasto = riceviIntent();
-      support.inserimento(elemento,pasto);
+
+      support.inserimento(elemento,pasto,selectedDate);
+
       // notify the calling activity of the result (it will open the Dialog used to insert
       // grams of the food selected in this activity) and close this one
       Intent aggiungi=new Intent(this, MealActivity.class);
       setResult(Activity.RESULT_OK, aggiungi);
       finish();
+
   }
 
   protected abstract void processImage();

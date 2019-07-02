@@ -6,6 +6,7 @@ import android.util.Log;
 
 import org.json.JSONObject;
 
+import java.sql.Date;
 import java.util.List;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,11 +30,17 @@ public class DbSupport extends AppCompatActivity {
     }
 
     //  METODO PER INSERIRE NUOVI CIBI NEL CORRETTO PASTO DEL DATABASE
-    public void inserimento(String pietanza, String pasto){
+    public void inserimento(String pietanza, String pasto, Date date){
+        //tiro fuori le informazioni dalla data
+        int year= date.getYear();
+        int month= date.getMonth();
+        int day= date.getDay();
         try {
             //se il pasto non esiste viene lanciata un'eccezione
-            Meal pastoAttuale = getDatabaseManager().noteModelMeal().findMealWithName(pasto).get(0);
-
+            Meal pastoAttuale = getDatabaseManager().noteModelMeal()
+                    .findMealWithName(pasto, year, month, day).get(0);
+            Log.i(TAG, "l'elemento esiste");
+          
             //creo Json con i cibiDiOggi
             try {
                 JSONObject cibo = new JSONObject();
@@ -64,6 +71,9 @@ public class DbSupport extends AppCompatActivity {
             //perciò ne creo uno nuovo
             Meal nuovoPasto = new Meal();
             nuovoPasto.nome = pasto;
+            nuovoPasto.year = year;
+            nuovoPasto.month = month;
+            nuovoPasto.day = day;
             //una volta creato il pasto insrisco subito il primo elemento cibo
             JSONObject cibi = new JSONObject();
             try {
