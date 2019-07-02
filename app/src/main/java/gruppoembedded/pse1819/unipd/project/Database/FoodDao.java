@@ -17,9 +17,9 @@ public interface FoodDao {
     @Query("SELECT * FROM Food")
     List<Food> loadAllFood();
 
-    //in questo modo posso fare ricerche mirate, per id o testo
+    //in questo modo posso fare ricerche mirate, per nome
     @Query("SELECT * FROM Food WHERE nome LIKE :search ")
-    List<Food> findFoodWithName(String search);
+    Food findFoodWithName(String search);
 
 
     @Query("DELETE FROM Food")

@@ -74,7 +74,7 @@ public class MealActivity extends AppCompatActivity {
 
         if (requestCode == GET_FOOD) {
             if (resultCode == Activity.RESULT_OK) {
-                String[][] nameproducts = trovaProdottiConDb(titolo());
+                String[][] nameproducts = trovaProdottiConDb();
                 int position = nameproducts.length - 1;
                 ListView mylist = findViewById(R.id.selectedfoodslistView);
 
@@ -105,7 +105,7 @@ public class MealActivity extends AppCompatActivity {
     private void creat_table() {
         // definisco un array di stringhe
         //String[] nameproducts =trovaProdottiConDb(titolo());
-        String[][] nameproducts = trovaProdottiConDb(titolo());
+        String[][] nameproducts = trovaProdottiConDb();
 
         // definisco un ArrayList
         /*final ArrayList<String> listp = new ArrayList<String>();
@@ -141,20 +141,8 @@ public class MealActivity extends AppCompatActivity {
         });
     }
 
-    //metodo per prelevare dati dal database
-
-    //instanziazione db
-
-    //creo accesso a db
-    private DietDb db;
-    private DietDb getDatabaseManager(){
-        if(db==null)
-            db=DietDb.getDatabase(this);
-        return db;
-    }
-
     //prelevo dati dei cibi associati al pasto di un giorno
-    private String[][] trovaProdottiConDb(String pasto){
+    private String[][] trovaProdottiConDb(){
         Meal mioPasto=support.identificaPasto(titolo());
 
         //il compilatore vuole necessariamente una pre-inizializzazione dell'elemento lista
@@ -180,6 +168,8 @@ public class MealActivity extends AppCompatActivity {
                 }
             }else { //messo solo per debug
                 Log.d(TAG, "lista di cibi: "+lista.toString());
+                //gestire la roba della stringa vuota, primo elemento dell'array va a null
+                return lista;
             }
         }catch(Exception e){
             Log.d(TAG, "eccezzione: "+e);
@@ -209,7 +199,7 @@ public class MealActivity extends AppCompatActivity {
         //!!!!=========  GET GRAMS FROM DATABASE====================!!!!
 
         // int grams = ?
-        //gramsPicker.setValue(grams);
+        gramsPicker.setValue(gramsPicker.getValue());
 
         Button confirmButton = (Button) dialog.findViewById(R.id.btnconfirm);
         // se viene premuto il pulsante, chiudere il pop-up
@@ -221,7 +211,7 @@ public class MealActivity extends AppCompatActivity {
                 int selectedgrams = gramsPicker.getValue();
 
                 //!!!!======= SAVE SELECTED GRAMS OF THAT FOOD TO DATABASE =====!!!!
-                aggiornaDati(pasto, posizione, selectedgrams);
+                update(posizione, selectedgrams);
 
                 dialog.dismiss();
             }
@@ -236,7 +226,7 @@ public class MealActivity extends AppCompatActivity {
                 Log.d(TAG, "cancella cibo dal db");
 
                 //!!!!!===== DELETE the selected FOOD FROM this meal =====!!!!!!
-                delete(pasto, posizione);
+                delete(posizione);
 
                 dialog.dismiss();
             }
@@ -245,7 +235,7 @@ public class MealActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    public void aggiornaDati(String pasto, int posiz, int grammi){
+    public void update(int posiz, int grammi){
         Meal mioPasto=support.identificaPasto(titolo());
 
         //estrazione cibi
@@ -275,7 +265,7 @@ public class MealActivity extends AppCompatActivity {
                 Log.d(TAG, "modifica eseguita: "+modifica);
 
                 mioPasto.cibiDiOggi = modifica;
-                getDatabaseManager().noteModelMeal().insertMeal(mioPasto);
+                support.getDatabaseManager().noteModelMeal().insertMeal(mioPasto);
                 //invoco create_table per aggiornare la lista
                 creat_table();
 
@@ -287,7 +277,7 @@ public class MealActivity extends AppCompatActivity {
         }
     }
 
-    public void delete(String pasto, int pos){
+    public void delete(int pos){
         Meal mioPasto=support.identificaPasto(titolo());
 
         //estrazione cibi
@@ -310,7 +300,7 @@ public class MealActivity extends AppCompatActivity {
                 Log.d(TAG, "eliminazione eseguita: "+modifica);
 
                 mioPasto.cibiDiOggi = modifica;
-                getDatabaseManager().noteModelMeal().insertMeal(mioPasto);
+                support.getDatabaseManager().noteModelMeal().insertMeal(mioPasto);
                 //invoco create_table per aggiornare la lista
                 creat_table();
 
