@@ -15,8 +15,6 @@ import android.util.Log;
 
 import androidx.appcompat.widget.Toolbar;
 
-import android.os.Parcel;
-
 import android.view.View;
 import android.widget.Button;
 
@@ -40,11 +38,12 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "MainActivity";
+    private static final int GET_DATE = 1;
     public String title;
-
     public DbSupport support= new DbSupport(this);
 
-    //used for the distinction between different days
+    //the user has the ability to select different days
     public Date currentDate = new Date (Calendar.getInstance().getTimeInMillis());
     DateParcelable dateParcelable;
 
@@ -55,25 +54,40 @@ public class MainActivity extends AppCompatActivity {
 
     String Labels[]= {"ASSUNTE", "RESTANTI"};
 
-    private static final String TAG = "MainActivityTag";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //all'apertura dell'app verifico se la tabella Food è vuota => prima volta che apro l'app, in tal caso la riempio
+        istantiateFood();
+
         setContentView(R.layout.activity_main);
+        Log.i(TAG, "Data corrente: "+currentDate.toString());
+
+        //insert date into the database if it is not already
+        support.dateControl(currentDate);
+
         title = currentDate.toString();
         setTitle(title);
 
-        assumedcalories=calories();
-        caloriestoget = totcalories-assumedcalories;
-        int Values[] = { assumedcalories , caloriestoget };
-        setupPieChart(Values); // chiamo il metodo che poi creerò
-
-        setupPieChart(); // chiamo il metodo che riempie il grafico
+        // chiamo il metodo che riempie il grafico
+        setupPieChart();
 
         //imposta l'ActionBar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setIcon(R.drawable.calendar_24dp);
+
+        toolbar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent= new Intent(MainActivity.this, DateSelectionActivity.class);
+                startActivityForResult(intent,GET_DATE);
+            }
+        });
 
         //gestione del passaggiodella data alle altre activities
         //pass the date so the system can decide which meal to add the selected food to
@@ -126,14 +140,23 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intSnacks);
             }
         });
-
-        //all'apertura dell'app verifico se la tabella Food è vuota => prima volta che apro l'app, in tal caso la riempio
-        istantiateFood();
     }
 
-    private void setupPieChart(int Values[]) {
-        //creazione metodo
-       //Popolo una lista di PieEntries
+
+
+
+
+    private void setupPieChart() {
+        //prendo le informazioni
+        assumedcalories=calories();
+        caloriestoget = totcalories-assumedcalories;
+        if (caloriestoget<0){
+            //per non buggare il grafico
+            caloriestoget = 0;
+        }
+        int Values[] = { assumedcalories , caloriestoget };
+
+        //Popolo una lista di PieEntries
         List<PieEntry> pieEntries = new ArrayList<>();
         //devo popolare ora il mio Chart con i dati, quindi per ogni pezzo del mio grafico a torta devo avere un'entry.
         // o nominato le mie entries (in riga 14 e 15 ) devo fare il pair per ogni elemento del vettore (riga 14) con ogni
@@ -142,11 +165,11 @@ public class MainActivity extends AppCompatActivity {
             pieEntries.add(new PieEntry(Values[i],Labels[i]));
         }
 
-        int[] colors = {R.color.colorPrimary, R.color.colorAccent};
+        //int[] colors = {R.color.colorPrimary, R.color.colorAccent};
 
         PieDataSet dataSet = new PieDataSet(pieEntries, "" );
         //cambio il colore di ogni "fetta" del grafico a torta, altrimenti resterebbero tutte con colori uguali.
-        dataSet.setColors(ColorTemplate.createColors(colors));
+        dataSet.setColors(ColorTemplate.JOYFUL_COLORS);
         PieData data = new PieData(dataSet);
 
 
@@ -168,6 +191,10 @@ public class MainActivity extends AppCompatActivity {
         chart.invalidate();
     }
 
+
+
+
+
     public int calories(){
         //creo una matrice con tutti i cibi consumati in un giorno, il loro nome e la quantità
         String[][] cibiDelGiorno=findFoods();
@@ -188,22 +215,25 @@ public class MainActivity extends AppCompatActivity {
             Log.i(TAG, "nome cibo trovato: " + cibiDelGiorno[i][0]);
 
             //trovo il valore nutrizionale del cibo in esame
-            int valoreNutrizionale=findCalories(cibiDelGiorno[i][0]);
-
-            //eseguo calcolo calorie
-            calTot= (int) (calTot+(quantità*valoreNutrizionale)/100);
+            if(cibiDelGiorno[i][0]!=null) {  //è null quando ho un pasto vuoto
+                int valoreNutrizionale = findCalories(cibiDelGiorno[i][0]);
+                //eseguo calcolo calorie
+                calTot= (int) (calTot+(quantità*valoreNutrizionale)/100);
+            }
         }
-
-
         //Log.i(TAG, "elemento di prova: "+support.getDatabaseManager().noteModelFood().findFoodWithName("sushi").get(0).nome);
 
         return calTot;
     }
 
+
+
+
+
     private String[][] findFoods(){
         //prendo tutti i pasti della giornata
-
-        List<Meal> dati=support.getDatabaseManager().noteModelMeal().loadAllMeals();
+        List<Meal> dati= support.getDatabaseManager().noteModelMeal()
+                .findMealsOfDay(currentDate.getYear(), currentDate.getMonth(),currentDate.getDay());
 
         //per ognuno prelevo tutti i cibi
         String tuttiCibi="";
@@ -237,6 +267,9 @@ public class MainActivity extends AppCompatActivity {
         return cibiDelGiorno;
     }
 
+
+
+
     private int findCalories(String nome){
         //carico la lista di tutti i cibi salvati a database
         /*List<Food> listaCibi=support.getDatabaseManager().noteModelFood().loadAllFood();
@@ -255,11 +288,51 @@ public class MainActivity extends AppCompatActivity {
         }*/
 
         //cerco il cibo corretto nel db ed estraggo le Kcal... sistema molto più semplice
-        Food elem=support.getDatabaseManager().noteModelFood().findFoodWithName(nome);
+        Food elem = support.getDatabaseManager().noteModelFood().findFoodWithName(nome);
         Log.i(TAG, "test su cibi: " + elem.KcalPerUnit);
 
         return (int)elem.KcalPerUnit;
     }
+
+
+
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        //aggiornamento grafico con nuovo valore calorie
+        setupPieChart();
+    }
+
+
+
+
+
+    // override of OnActivityResult to get the selected date
+    // that was passed by DateSelectionActivity
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == GET_DATE){
+            if (resultCode == RESULT_OK){
+
+                dateParcelable = data.getParcelableExtra("date");
+                currentDate = dateParcelable.getDate();
+
+                title = currentDate.toString();
+                setTitle(title);
+
+                Log.i(TAG, "Data corrente: "+currentDate.toString());
+            }
+        }
+    }
+
+
+
+
 
     private void istantiateFood(){
         //l'istanziazione viene fatta solo se è la prima volta che l'app viene installata, e quindi non esiste anoora il database
@@ -300,13 +373,4 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        //aggiornamento grafico con nuovo valore calorie
-        assumedcalories=calories();
-        caloriestoget = totcalories-assumedcalories;
-        int Values[] = { assumedcalories , caloriestoget };
-        setupPieChart(Values);
-    }
 }

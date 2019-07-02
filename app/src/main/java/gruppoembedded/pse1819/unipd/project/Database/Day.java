@@ -1,26 +1,28 @@
 package gruppoembedded.pse1819.unipd.project.Database;
 
+
+import java.sql.Date;
+
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 //il nuovo giorno dovrà essere creato all'apertura dell'app => accesso al calendario
-@Entity
+@Entity(primaryKeys = {"giorno","mese","anno"})
 public class Day {
 
-    @PrimaryKey(autoGenerate = true)
     @NonNull
-    public long id;
+    public int giorno;
 
     @NonNull
-    String numero;
-    @NonNull
-    String mese;
-    @NonNull
-    String anno;
+    public int mese;
 
-    String colazione;
-    String pranzo;
-    String spuntino;
-    String cena;
+    @NonNull
+    public int anno;
+
+    @Override
+    public String toString() {
+        Date date= new Date(anno,mese,giorno);
+        return date.toString();
+    }
 }

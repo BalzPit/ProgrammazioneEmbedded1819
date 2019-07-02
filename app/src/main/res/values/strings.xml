@@ -11,7 +11,8 @@
     <string name="nnapi">NNAPI</string>
     <string name="threads">Threads:</string>
     <string name="madewith">Made with: </string>
-  
+    <string name="dateslist">Lista dei Giorni</string>
+
     <string name="pranzo">pranzo</string>
     <string name="cena">cena</string>
     <string name="colazione">colazione</string>
@@ -24,10 +25,11 @@
     </string-array>
 
     <string name="device">Device:</string>
+    <string name="datesList" />
     <string-array name="devices">
         <item>CPU</item>
         <item>GPU</item>
         <item>NNAPI</item>
     </string-array>
-  
+
 </resources>

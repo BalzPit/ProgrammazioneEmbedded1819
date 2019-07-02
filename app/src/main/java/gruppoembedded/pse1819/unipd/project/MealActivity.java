@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity;
 //quelli in inglese
 import androidx.appcompat.widget.Toolbar;
 import gruppoembedded.pse1819.unipd.project.Database.DbSupport;
-import gruppoembedded.pse1819.unipd.project.Database.DietDb;
 import gruppoembedded.pse1819.unipd.project.Database.Meal;
 import gruppoembedded.pse1819.unipd.project.tensorflowlite.ClassifierActivity;
 
@@ -18,7 +17,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.NumberPicker;
@@ -29,31 +27,37 @@ import org.json.JSONObject;
 
 import java.sql.Date;
 import java.util.ArrayList;
-import java.util.List;
 
 public class MealActivity extends AppCompatActivity {
 
-    private static final String TAG = "MainActivityPrinc";
+    private static final String TAG = "MealActivity";
     private static final int GET_FOOD = 1;
     public DbSupport support= new DbSupport(this);
 
-    public Date currentDate;
-
+    public Date selectedDate;
     //used to save the date
     private DateParcelable dateParcelable;
+
+    private ListView MyList;
+    private String nomePasto;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_meal);
+        MyList = findViewById(R.id.selectedfoodslistView);
+
+        nomePasto= titolo();
 
         //qui decido il titolo della tabella
         TextView tv= (TextView)findViewById(R.id.textList);
-        tv.setText(titolo());
+        tv.setText(nomePasto);
 
         //get the date passed from MainActivity
         Intent intent= getIntent();
         dateParcelable = intent.getParcelableExtra("date");
+        selectedDate= dateParcelable.getDate();
+        Log.i(TAG, "data: "+selectedDate.toString()+" -> "+selectedDate.getYear()+"/"+selectedDate.getMonth()+"/"+selectedDate.getDay());
 
         //imposta l'ActionBar
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -76,16 +80,15 @@ public class MealActivity extends AppCompatActivity {
             if (resultCode == Activity.RESULT_OK) {
                 String[][] nameproducts = trovaProdottiConDb();
                 int position = nameproducts.length - 1;
-                ListView mylist = findViewById(R.id.selectedfoodslistView);
 
                 //create illusion of having the list item selected
-                mylist.requestFocusFromTouch();
-                mylist.setSelection(position);
+                MyList.requestFocusFromTouch();
+                MyList.setSelection(position);
 
                 //perform a click on the correct item
-                mylist.performItemClick(mylist.getChildAt(position),
+                MyList.performItemClick(MyList.getChildAt(position),
                         position,
-                        mylist.getAdapter().getItemId(position));
+                        MyList.getAdapter().getItemId(position));
 
                 //con il nome della pietanza posso accedere al metodo che attua il salvataggio
                 String pietanza = data.getStringExtra("piet");
@@ -119,18 +122,15 @@ public class MealActivity extends AppCompatActivity {
             lista.add(nameproducts[i]);
         }
 
-        // recupero la lista dal layout
-        final ListView mylist = (ListView) findViewById(R.id.selectedfoodslistView);
-
         // creo e istruisco l'adattatore
         //final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listp);
         final FoodListAdapter adapter= new FoodListAdapter(this, R.layout.adapter_layout, lista);
 
         // inietto i dati
-        mylist.setAdapter(adapter);
+        MyList.setAdapter(adapter);
 
         //gestisco il tocco sulle righe
-        mylist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        MyList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //qui metodo per modificare righe, usare i metodi dell'adattatore per accedere ai dati delle righe
@@ -143,7 +143,7 @@ public class MealActivity extends AppCompatActivity {
 
     //prelevo dati dei cibi associati al pasto di un giorno
     private String[][] trovaProdottiConDb(){
-        Meal mioPasto=support.identificaPasto(titolo());
+        Meal mioPasto=support.identificaPasto(nomePasto, selectedDate);
 
         //il compilatore vuole necessariamente una pre-inizializzazione dell'elemento lista
         String[][] lista=new String[0][0];
@@ -172,7 +172,7 @@ public class MealActivity extends AppCompatActivity {
                 return lista;
             }
         }catch(Exception e){
-            Log.d(TAG, "eccezzione: "+e);
+            Log.d(TAG, "eccezione: "+e);
         }
         return lista;
     }
@@ -196,11 +196,6 @@ public class MealActivity extends AppCompatActivity {
         gramsPicker.setMinValue(0);
         gramsPicker.setMaxValue(1000);
 
-        //!!!!=========  GET GRAMS FROM DATABASE====================!!!!
-
-        // int grams = ?
-        gramsPicker.setValue(gramsPicker.getValue());
-
         Button confirmButton = (Button) dialog.findViewById(R.id.btnconfirm);
         // se viene premuto il pulsante, chiudere il pop-up
         // NB! il popup viene chiuso anche se vi si preme fuori, ma le azioni di chiusura vengono eseguite solo in caso di pressione pulsante
@@ -210,7 +205,6 @@ public class MealActivity extends AppCompatActivity {
 
                 int selectedgrams = gramsPicker.getValue();
 
-                //!!!!======= SAVE SELECTED GRAMS OF THAT FOOD TO DATABASE =====!!!!
                 update(posizione, selectedgrams);
 
                 dialog.dismiss();
@@ -225,7 +219,6 @@ public class MealActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Log.d(TAG, "cancella cibo dal db");
 
-                //!!!!!===== DELETE the selected FOOD FROM this meal =====!!!!!!
                 delete(posizione);
 
                 dialog.dismiss();
@@ -236,7 +229,7 @@ public class MealActivity extends AppCompatActivity {
     }
 
     public void update(int posiz, int grammi){
-        Meal mioPasto=support.identificaPasto(titolo());
+        Meal mioPasto=support.identificaPasto(nomePasto,selectedDate);
 
         //estrazione cibi
         try {
@@ -278,7 +271,7 @@ public class MealActivity extends AppCompatActivity {
     }
 
     public void delete(int pos){
-        Meal mioPasto=support.identificaPasto(titolo());
+        Meal mioPasto=support.identificaPasto(nomePasto, selectedDate);
 
         //estrazione cibi
         try {

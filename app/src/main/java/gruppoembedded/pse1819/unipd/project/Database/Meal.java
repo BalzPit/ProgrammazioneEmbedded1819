@@ -10,7 +10,7 @@ import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 //questa entità è identificata da un'insieme di valori
-@Entity(primaryKeys = {"id", "day", "month","year"})
+@Entity(primaryKeys = {"nome", "day", "month","year"})
 public class Meal {
 
     @NonNull
@@ -22,16 +22,12 @@ public class Meal {
     @NonNull
     public int year;
 
-    //@PrimaryKey(autoGenerate = true)
-    @NonNull
-    public long id;
-
     @NonNull
     public String nome;
 
     @Override
     public String toString() {
-        return String.format("%s (id = %d)", nome, id);
+        return String.format("%s %d/%d/%d", nome,year,month,day);
     }
 
     //questo sarà l'elenco dei cibi associati ad oggi, un json?

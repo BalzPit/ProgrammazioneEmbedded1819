@@ -16,10 +16,6 @@ public interface MealDao {
     @Query("SELECT * FROM Meal")
     List<Meal> loadAllMeals();
 
-    //in questo modo posso fare ricerche mirate, per id o nome
-    @Query("SELECT * FROM Meal WHERE id LIKE :search ")
-    List<Meal> findMealWithId(long search);
-
     //trovo tutti i pasti di una giornata
     @Query("SELECT * FROM Meal WHERE year LIKE :year AND month LIKE:month AND day LIKE:day")
     List<Meal> findMealsOfDay(int year, int month, int day);
