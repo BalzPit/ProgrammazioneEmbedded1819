@@ -4,6 +4,7 @@ package gruppoembedded.pse1819.unipd.project;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 //quelli in inglese
+import androidx.appcompat.widget.Toolbar;
 import gruppoembedded.pse1819.unipd.project.Database.DbSupport;
 import gruppoembedded.pse1819.unipd.project.Database.DietDb;
 import gruppoembedded.pse1819.unipd.project.Database.Meal;
@@ -26,6 +27,7 @@ import android.widget.TextView;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +37,11 @@ public class MealActivity extends AppCompatActivity {
     private static final int GET_FOOD = 1;
     public DbSupport support= new DbSupport(this);
 
+    public Date currentDate;
+
+    //used to save the date
+    private DateParcelable dateParcelable;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +50,14 @@ public class MealActivity extends AppCompatActivity {
         //qui decido il titolo della tabella
         TextView tv= (TextView)findViewById(R.id.textList);
         tv.setText(titolo());
+
+        //get the date passed from MainActivity
+        Intent intent= getIntent();
+        dateParcelable = intent.getParcelableExtra("date");
+
+        //imposta l'ActionBar
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         //metodo per compilare tabella
         creat_table();
@@ -173,7 +188,8 @@ public class MealActivity extends AppCompatActivity {
     }
 
 
-    //metodo per il dialog che funziona
+    // alla pressione di un elemento della lista comparirà un DialogFragment
+    // con varie opzioni per quell'elemento. (modifica quantità del cibo, eliminazione elemento, ecc)
     final Context context = this;
     public void onClick(View arg0, final String pasto, final int posizione) {
 
@@ -311,6 +327,8 @@ public class MealActivity extends AppCompatActivity {
         Button add=findViewById(R.id.add);
         Intent aggiungi=new Intent(view.getContext(),InsertActivity.class);
         aggiungi.putExtra("nome", titolo());
+        //pass the date to InsertActivity so that it can decide which meal to add the selected food to
+        aggiungi.putExtra("date", dateParcelable);
         startActivityForResult(aggiungi,GET_FOOD);
     }
 
@@ -318,6 +336,8 @@ public class MealActivity extends AppCompatActivity {
         Button add=findViewById(R.id.add);
         Intent aggiungi=new Intent(view.getContext(), ClassifierActivity.class);
         aggiungi.putExtra("nome", titolo());
+        //pass the date to InsertActivity so that it can decide which meal to add the selected food to
+        aggiungi.putExtra("date", dateParcelable);
         startActivityForResult(aggiungi,GET_FOOD);
     }
 

@@ -41,4 +41,5 @@ dependencies {
 
     //libreria per il grafico a torta
     implementation 'com.github.PhilJay:MPAndroidChart:v3.0.1'
+    implementation 'com.google.android.material:material:1.0.0'
 }

@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import androidx.appcompat.widget.Toolbar;
 import gruppoembedded.pse1819.unipd.project.Database.DbSupport;
 import gruppoembedded.pse1819.unipd.project.Database.DietDb;
 import gruppoembedded.pse1819.unipd.project.Database.Food;
@@ -24,6 +25,10 @@ public class StartActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
+
+        //imposta l'ActionBar
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         //all'apertura dell'app verifico se la tabella Food è vuota => prima volta che apro l'app, in tal caso la riempio
         istanziaFood();

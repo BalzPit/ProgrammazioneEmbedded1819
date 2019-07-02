@@ -1,14 +1,28 @@
 package gruppoembedded.pse1819.unipd.project.Database;
 
+import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
+
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-@Entity
+//questa entità è identificata da un'insieme di valori
+@Entity(primaryKeys = {"id", "day", "month","year"})
 public class Meal {
 
-    @PrimaryKey(autoGenerate = true)
+    @NonNull
+    public int day;
+
+    @NonNull
+    public int month;
+
+    @NonNull
+    public int year;
+
+    //@PrimaryKey(autoGenerate = true)
     @NonNull
     public long id;
 

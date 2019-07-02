@@ -3,11 +3,14 @@ package gruppoembedded.pse1819.unipd.project;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.view.View;
 import android.widget.Button;
+
 
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Description;
@@ -16,12 +19,18 @@ import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
+import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity /*implements View.OnClickListener*/{
+public class MainActivity extends AppCompatActivity {
 
-    public String title = "Situazione Attuale";
+    public String title;
+
+    //used for the distinction between different days
+    public Date currentDate = new Date (Calendar.getInstance().getTimeInMillis());
+    DateParcelable dateParcelable;
 
     protected int totcalories = 2700;
     protected int assumedcalories = 1500;
@@ -33,8 +42,17 @@ public class MainActivity extends AppCompatActivity /*implements View.OnClickLis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        title = currentDate.toString();
         setTitle(title);
-        setupPieChart(); // chiamo il metodo che poi creerò
+        setupPieChart(); // chiamo il metodo che riempie il grafico
+
+        //imposta l'ActionBar
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        //gestione del passaggiodella data alle altre activities
+        //pass the date so the system can decide which meal to add the selected food to
+        dateParcelable= new DateParcelable(currentDate);
 
         //inizializzazione dei bottoni
         Button pranzo = findViewById(R.id.pranzo);
@@ -48,6 +66,7 @@ public class MainActivity extends AppCompatActivity /*implements View.OnClickLis
             public void onClick(View v) {
                 Intent intPranzo=new Intent(v.getContext(), MealActivity.class);
                 intPranzo.putExtra("username","Pranzo");
+                intPranzo.putExtra("date", dateParcelable);
                 startActivity(intPranzo);
             }
         });
@@ -57,6 +76,7 @@ public class MainActivity extends AppCompatActivity /*implements View.OnClickLis
             public void onClick(View v) {
                 Intent intColazione=new Intent(v.getContext(), MealActivity.class);
                 intColazione.putExtra("username","Colazione");
+                intColazione.putExtra("date", dateParcelable);
                 startActivity(intColazione);
             }
         });
@@ -66,6 +86,7 @@ public class MainActivity extends AppCompatActivity /*implements View.OnClickLis
             public void onClick(View v) {
                 Intent intCena=new Intent(v.getContext(), MealActivity.class);
                 intCena.putExtra("username","Cena");
+                intCena.putExtra("date", dateParcelable);
                 startActivity(intCena);
             }
         });
@@ -75,6 +96,7 @@ public class MainActivity extends AppCompatActivity /*implements View.OnClickLis
             public void onClick(View v) {
                 Intent intSnacks=new Intent(v.getContext(), MealActivity.class);
                 intSnacks.putExtra("username","Snacks");
+                intSnacks.putExtra("date", dateParcelable);
                 startActivity(intSnacks);
             }
         });
@@ -91,9 +113,11 @@ public class MainActivity extends AppCompatActivity /*implements View.OnClickLis
             pieEntries.add(new PieEntry(Values[i],Labels[i]));
         }
 
+        int[] colors = {R.color.colorPrimary, R.color.colorAccent};
+
         PieDataSet dataSet = new PieDataSet(pieEntries, "" );
         //cambio il colore di ogni "fetta" del grafico a torta, altrimenti resterebbero tutte con colori uguali.
-        dataSet.setColors( ColorTemplate.JOYFUL_COLORS );
+        dataSet.setColors(ColorTemplate.createColors(colors));
         PieData data = new PieData(dataSet);
 
 

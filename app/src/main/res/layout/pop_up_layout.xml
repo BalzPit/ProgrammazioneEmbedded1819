@@ -4,7 +4,6 @@
     android:orientation="vertical"
     android:layout_width="350dp"
     android:layout_height="wrap_content"
-    android:background="@android:color/black"
     android:padding="5dp"
     android:layout_gravity="center">
 
@@ -16,7 +15,7 @@
         android:text="foodname"
         android:textSize="25dp"
         android:textStyle="bold"
-        android:textColor="@android:color/holo_blue_bright"/>
+        android:textColor="@color/colorAccent"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -36,8 +35,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/grams_picker"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:textColor="@android:color/white"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <NumberPicker
             android:id="@+id/grams_picker"
