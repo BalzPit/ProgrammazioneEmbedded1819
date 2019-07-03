@@ -365,6 +365,8 @@ public class MainActivity extends AppCompatActivity {
 
                 totcalories = selectedDay.calorie;
 
+                number.setText(Integer.toString(totcalories));
+
                 Log.i(TAG, "Data corrente: "+currentDate.toString());
             }
         }
