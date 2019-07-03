@@ -44,52 +44,27 @@ public class DbSupport extends AppCompatActivity {
             Log.i(TAG, "l'elemento esiste");
 
             //creo Json con i cibiDiOggi
-            try {
-                JSONObject cibo = new JSONObject();
-                Log.i(TAG, "elementi nel pasto considerato: "+pastoAttuale.cibiDiOggi);
+            JSONObject cibo = new JSONObject();
+            Log.i(TAG, "elementi nel pasto considerato: "+pastoAttuale.cibiDiOggi);
 
-                //aggiungo nuovo elemento cibo e aggiorno il database (NB: l'elemento pastoAttuale sostituisce quello precedente)
-                cibo.put("nome",pietanza);
-                cibo.put("quantità","-");
+            //aggiungo nuovo elemento cibo e aggiorno il database (NB: l'elemento pastoAttuale sostituisce quello precedente)
+            cibo.put("nome",pietanza);
+            cibo.put("quantità","-");
 
-                //esiste la possibilità che la lista sia vuota, ad esempio dopo una rimozione
-                if(pastoAttuale.cibiDiOggi.equals("")){
-                    pastoAttuale.cibiDiOggi = cibo.toString();
-                }
-                else{
-                    pastoAttuale.cibiDiOggi=pastoAttuale.cibiDiOggi +","+ cibo.toString();
-                }
-                getDatabaseManager().noteModelMeal().insertMeal(pastoAttuale);
+            //esiste la possibilità che la lista sia vuota, ad esempio dopo una rimozione
+            if(pastoAttuale.cibiDiOggi.equals("")){
+                pastoAttuale.cibiDiOggi = cibo.toString();
+            }
+            else{
+                pastoAttuale.cibiDiOggi=pastoAttuale.cibiDiOggi +","+ cibo.toString();
+            }
+            getDatabaseManager().noteModelMeal().insertMeal(pastoAttuale);
 
             } catch (Exception e) {
                 //in realtà questa non dovrebbe mai essere lanciata, dal momento che il primo elemento
                 //viene inserito correttamente, vedi sotto
                 Log.i(TAG, "insert: eccezzione nella creazione di JSONObject: " + e);
             }
-
-        }catch(Exception manca) {
-            Log.i(TAG, "eccezione per mancanza elmento pasto: "+manca);
-
-            //perciò ne creo uno nuovo
-            Meal nuovoPasto = new Meal();
-            nuovoPasto.nome = pasto;
-            nuovoPasto.year = year;
-            nuovoPasto.month = month;
-            nuovoPasto.day = day;
-            //una volta creato il pasto insrisco subito il primo elemento cibo
-            JSONObject cibi = new JSONObject();
-            try {
-                cibi.put("nome", pietanza);
-                cibi.put("quantità", "-");
-                String cibiConvertiti=cibi.toString();
-                nuovoPasto.cibiDiOggi=cibi.toString();
-                //inserisco il pasto nella tabella corrispondente
-                getDatabaseManager().noteModelMeal().insertMeal(nuovoPasto);
-
-            }catch(Exception e){
-                Log.i(TAG, "insert: eccezzione sul put: " + e);
-            }
-        }
         Log.i(TAG, "inserita la pietanza");
     }
 

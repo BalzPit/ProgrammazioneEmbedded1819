@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import gruppoembedded.pse1819.unipd.project.Database.Day;
 import gruppoembedded.pse1819.unipd.project.Database.DbSupport;
-import gruppoembedded.pse1819.unipd.project.Database.Food;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -18,6 +17,7 @@ import android.widget.TextView;
 
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class DateSelectionActivity extends AppCompatActivity {
@@ -50,6 +50,7 @@ public class DateSelectionActivity extends AppCompatActivity {
     private void createList() {
         // prendo le date salvate
         final List<Day> date=support.getDatabaseManager().noteModelDay().loadAllDays();
+        Collections.reverse(date);
 
         // definisco un ArrayList di stringhe
         final ArrayList<String> listp = new ArrayList<String>();

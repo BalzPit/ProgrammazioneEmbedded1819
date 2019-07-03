@@ -1,19 +1,3 @@
-/*
- * Copyright 2019 The TensorFlow Authors. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package gruppoembedded.pse1819.unipd.project.tensorflowlite;
 
 import android.Manifest;
@@ -152,14 +136,6 @@ public abstract class CameraActivity extends AppCompatActivity
   protected int[] getRgbBytes() {
     imageConverter.run();
     return rgbBytes;
-  }
-
-  protected int getLuminanceStride() {
-    return yRowStride;
-  }
-
-  protected byte[] getLuminance() {
-    return yuvBytes[0];
   }
 
   /** Callback for android.hardware.Camera API */
@@ -502,37 +478,12 @@ public abstract class CameraActivity extends AppCompatActivity
     return model;
   }
 
-  private void setModel(Model model) {
-    if (this.model != model) {
-      LOGGER.d("Updating  model: " + model);
-      this.model = model;
-      onInferenceConfigurationChanged();
-    }
-  }
-
   protected Device getDevice() {
     return device;
   }
 
-  private void setDevice(Device device) {
-    if (this.device != device) {
-      LOGGER.d("Updating  device: " + device);
-      this.device = device;
-      final boolean threadsEnabled = device == Device.CPU;
-      onInferenceConfigurationChanged();
-    }
-  }
-
   protected int getNumThreads() {
     return numThreads;
-  }
-
-  private void setNumThreads(int numThreads) {
-    if (this.numThreads != numThreads) {
-      LOGGER.d("Updating  numThreads: " + numThreads);
-      this.numThreads = numThreads;
-      onInferenceConfigurationChanged();
-    }
   }
 
   private String riceviIntent(){

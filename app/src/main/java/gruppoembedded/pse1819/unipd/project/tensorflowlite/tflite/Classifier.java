@@ -1,18 +1,3 @@
-/* Copyright 2019 The TensorFlow Authors. All Rights Reserved.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-==============================================================================*/
-
 package gruppoembedded.pse1819.unipd.project.tensorflowlite.tflite;
 
 import android.app.Activity;
@@ -130,14 +115,6 @@ public abstract class Classifier {
 
     public Float getConfidence() {
       return confidence;
-    }
-
-    public RectF getLocation() {
-      return new RectF(location);
-    }
-
-    public void setLocation(RectF location) {
-      this.location = location;
     }
 
     @Override
@@ -325,23 +302,6 @@ public abstract class Classifier {
    * @param pixelValue
    */
   protected abstract void addPixelValue(int pixelValue);
-
-  /**
-   * Read the probability value for the specified label This is either the original value as it was
-   * read from the net's output or the updated value after the filter was applied.
-   *
-   * @param labelIndex
-   * @return
-   */
-  protected abstract float getProbability(int labelIndex);
-
-  /**
-   * Set the probability value for the specified label.
-   *
-   * @param labelIndex
-   * @param value
-   */
-  protected abstract void setProbability(int labelIndex, Number value);
 
   /**
    * Get the normalized probability value for the specified label. This is the final value as it
