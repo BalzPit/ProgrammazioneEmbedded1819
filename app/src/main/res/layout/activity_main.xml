@@ -35,7 +35,7 @@
         android:id="@+id/pranzo"
         android:layout_width="150dp"
         android:layout_height="60dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:text="@string/pranzo"
         app:layout_constraintEnd_toEndOf="@+id/chart"
         app:layout_constraintTop_toBottomOf="@+id/chart" />
@@ -44,7 +44,7 @@
         android:id="@+id/cena"
         android:layout_width="150dp"
         android:layout_height="60dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:text="@string/cena"
         app:layout_constraintEnd_toEndOf="@+id/pranzo"
         app:layout_constraintTop_toBottomOf="@+id/pranzo" />
@@ -53,7 +53,7 @@
         android:id="@+id/snack"
         android:layout_width="150dp"
         android:layout_height="60dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:text="@string/snacks"
         app:layout_constraintStart_toStartOf="@+id/colazione"
         app:layout_constraintTop_toBottomOf="@+id/colazione" />
@@ -62,9 +62,20 @@
         android:id="@+id/colazione"
         android:layout_width="150dp"
         android:layout_height="60dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:text="@string/colazione"
         app:layout_constraintStart_toStartOf="@+id/chart"
         app:layout_constraintTop_toBottomOf="@+id/chart" />
+
+    <EditText
+        android:id="@+id/editcalories"
+        android:layout_width="50dp"
+        android:layout_height="49dp"
+        android:layout_marginBottom="170dp"
+        android:ems="10"
+        android:inputType="number"
+        app:layout_constraintBottom_toBottomOf="@+id/chart"
+        app:layout_constraintEnd_toEndOf="@+id/chart"
+        app:layout_constraintStart_toStartOf="@+id/chart" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

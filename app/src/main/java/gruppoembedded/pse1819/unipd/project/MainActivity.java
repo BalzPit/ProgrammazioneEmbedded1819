@@ -4,6 +4,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import gruppoembedded.pse1819.unipd.project.Database.Day;
 import gruppoembedded.pse1819.unipd.project.Database.DbSupport;
 import gruppoembedded.pse1819.unipd.project.Database.DietDb;
 import gruppoembedded.pse1819.unipd.project.Database.Food;
@@ -15,8 +16,12 @@ import android.util.Log;
 
 import androidx.appcompat.widget.Toolbar;
 
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 
 
 import com.github.mikephil.charting.charts.PieChart;
@@ -48,15 +53,16 @@ public class MainActivity extends AppCompatActivity {
     DateParcelable dateParcelable;
 
 
-    protected int totcalories = 2700;
+    private int totcalories;
     private int assumedcalories;
     protected int caloriestoget;
 
     String Labels[]= {"ASSUNTE", "RESTANTI"};
 
+    protected EditText number; // inizializzo il numero di calorie
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         //all'apertura dell'app verifico se la tabella Food è vuota => prima volta che apro l'app, in tal caso la riempio
@@ -67,6 +73,36 @@ public class MainActivity extends AppCompatActivity {
 
         //insert date into the database if it is not already
         support.dateControl(currentDate);
+
+        //get calories of that day
+        Day selectedDay = support.getDatabaseManager().noteModelDay()
+                .findDayWithName(currentDate.getYear(), currentDate.getMonth(), currentDate.getDay()).get(0);
+
+        totcalories = selectedDay.calorie;
+
+        // prendo il numero di calorie dalla EditText
+        number = (EditText)findViewById(R.id.editcalories);
+        number.setText(Integer.toString(totcalories));
+
+        number.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event){
+                if (actionId== EditorInfo.IME_ACTION_DONE){
+                    //salva nel database il numero delle calorie appena inserito
+                    int calorie = Integer.parseInt(number.getText().toString());
+                    Day selectedDay = support.getDatabaseManager().noteModelDay()
+                            .findDayWithName(currentDate.getYear(), currentDate.getMonth(), currentDate.getDay()).get(0);
+                    selectedDay.calorie = calorie;
+                    support.getDatabaseManager().noteModelDay().insertDay(selectedDay);
+                    //relaunch the activity with a new instance
+                    recreate();
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        String valuecalories = number.getText().toString();
 
         title = currentDate.toString();
         setTitle(title);
@@ -182,8 +218,7 @@ public class MainActivity extends AppCompatActivity {
         data.setValueTextSize(20);
         chart.setEntryLabelTextSize(12f); // settaggio della dimensione del testo riferito al valore della fetta di torta
         chart.setEntryLabelColor(-1); // il valore -1 corrisponde al colore bianco
-        String totcaloriesstring = Integer.toString(totcalories);
-        chart.setCenterText("TOTALE CALORIE" + " " + totcaloriesstring); //testo che compare all'internod del buco del grafico
+        chart.setCenterText("TOTALE CALORIE"); //testo che compare all'internod del buco del grafico
         chart.setCenterTextColor(-16777216); //il valore -16777216 corrisponde al colore nero
         chart.setCenterTextSize(16f); //dimensione del testo all'internod el buco
         //creo un'animazione all'apertura del grafico
@@ -324,6 +359,11 @@ public class MainActivity extends AppCompatActivity {
 
                 title = currentDate.toString();
                 setTitle(title);
+
+                Day selectedDay = support.getDatabaseManager().noteModelDay()
+                        .findDayWithName(currentDate.getYear(), currentDate.getMonth(), currentDate.getDay()).get(0);
+
+                totcalories = selectedDay.calorie;
 
                 Log.i(TAG, "Data corrente: "+currentDate.toString());
             }

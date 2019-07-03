@@ -20,6 +20,9 @@ public class Day {
     @NonNull
     public int anno;
 
+    @NonNull
+    public int calorie;
+
     @Override
     public String toString() {
         Date date= new Date(anno,mese,giorno);

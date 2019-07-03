@@ -156,6 +156,7 @@ public class DbSupport extends AppCompatActivity {
             newDay.anno = year;
             newDay.mese = month;
             newDay.giorno = day;
+            newDay.calorie = 0; //standard value for calories, it can later be changed by the user in MainActivity
 
             getDatabaseManager().noteModelDay().insertDay(newDay);
         }
