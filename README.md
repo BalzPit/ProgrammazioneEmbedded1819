@@ -1,6 +1,9 @@
 # ProgrammazioneEmbedded1819
 
-!!!---Se cambia branch/versione, è necessaria l'eliminazione dei dati dell'app (o la disinstallazione), onde evitare crash---!!!
+!!!---Se cambia branch, è necessaria l'eliminazione dei dati dell'app (o la disinstallazione), onde evitare crash---!!!
+
+!!!--- Ogni tanto ci è capitato un bug con AndroidStudio, ovvero la comparsa (apparentemente senza motivo) di questo errore all'apertura del programma: This version of Android Studio cannot open this project, please retry with Android Studio 3.4 or newer.
+Non abbiamo capito cosa lo scateni, sembra risolversi da solo riavviando androidstudio o il project build ---!!!
 
 La versione finale dell'app si trova nel branch "MASTER" ed è la stessa del file zip che trova nella mail.
 
