@@ -20,4 +20,5 @@ public class Food {
 
     @NonNull
     public long KcalPerUnit;
+    //l'unità di misura è 100gr
 }

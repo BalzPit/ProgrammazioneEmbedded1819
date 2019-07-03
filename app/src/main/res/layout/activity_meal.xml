@@ -5,51 +5,74 @@ xmlns:tools="http://schemas.android.com/tools"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
 tools:context=".MealActivity">
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-android:id="@+id/relativeLayout"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-tools:layout_editor_absoluteX="311dp"
-tools:layout_editor_absoluteY="16dp">
 
-<TextView
-    android:id="@+id/textList"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_alignParentTop="true"
-    android:layout_centerHorizontal="true"
-    android:layout_marginTop="16dp"
-    android:text="titolo" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-<ListView
-    android:id="@+id/selectedfoodslistView"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_below="@+id/textList"
-    android:layout_centerHorizontal="true"
-    android:layout_marginTop="15dp" />
-</RelativeLayout>
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        android:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:layout_constraintTop_toTopOf="parent">
 
-<Button
-style="@style/Widget.AppCompat.Button.Small"
-android:id="@+id/add"
-android:layout_width="wrap_content"
-android:layout_height="48dp"
-android:layout_marginEnd="8dp"
-android:layout_marginRight="8dp"
-android:background="@android:drawable/ic_input_add"
-android:onClick="scegli"
-app:layout_constraintEnd_toEndOf="parent"
-app:layout_constraintTop_toTopOf="parent" />
+    </androidx.appcompat.widget.Toolbar>
 
-    <Button
-        android:id="@+id/photo"
-        style="@style/Widget.AppCompat.Button.Small"
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/relativeLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        tools:layout_editor_absoluteX="311dp">
+
+        <TextView
+            android:id="@+id/textList"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="16dp"
+            android:text="titolo" />
+
+        <ListView
+            android:id="@+id/selectedfoodslistView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/textList"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="15dp" />
+    </RelativeLayout>
+
+    </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/insert_button"
         android:layout_width="wrap_content"
-        android:layout_height="48dp"
+        android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        android:background="@drawable/ic_launcher"
-        android:onClick="scegliPhoto"
+        android:layout_marginBottom="8dp"
+        android:clickable="true"
+        android:onClick="scegli"
+        app:backgroundTint="@color/colorAccent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:srcCompat="@drawable/ic_baseline_add" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/tf_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginBottom="8dp"
+        android:clickable="true"
+        android:onClick="scegliPhoto"
+        app:backgroundTint="@color/colorAccent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:srcCompat="@drawable/ic_launcher" />
 </androidx.constraintlayout.widget.ConstraintLayout>
