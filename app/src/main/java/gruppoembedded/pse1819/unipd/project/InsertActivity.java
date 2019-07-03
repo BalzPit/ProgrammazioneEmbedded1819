@@ -13,11 +13,13 @@ import android.widget.TextView;
 
 import org.json.JSONObject;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
 import androidx.appcompat.app.AppCompatActivity;
 //quelli in inglese
+import androidx.appcompat.widget.Toolbar;
 import gruppoembedded.pse1819.unipd.project.Database.DbSupport;
 import gruppoembedded.pse1819.unipd.project.Database.DietDb;
 import gruppoembedded.pse1819.unipd.project.Database.Food;
@@ -25,10 +27,13 @@ import gruppoembedded.pse1819.unipd.project.Database.Meal;
 
 public class InsertActivity extends AppCompatActivity {
 
-    //la lista prodotti dovrà essere implementata nel database
-    //private String[] listaProdotti={"pasta","bistecca","formaggio","risotto","yogurt"};
-    private static final String TAG="InsertActivityMine";
+    private static final String TAG="InsertActivity";
     public DbSupport support= new DbSupport(this);
+
+    //used to save the date
+    private DateParcelable dateParcelable;
+
+    private Date selectedDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +43,15 @@ public class InsertActivity extends AppCompatActivity {
         //qui decido il titolo della tabella
         TextView tv= (TextView)findViewById(R.id.textList);
         tv.setText("Lista cibi");
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        //get the date passed from MainActivity
+        Intent intent= getIntent();
+        dateParcelable = intent.getParcelableExtra("date");
+        selectedDate = dateParcelable.getDate();
+        Log.i(TAG, "Data corrente: "+selectedDate.toString());
 
         //metodo per compilare tabella
         creat_table();
@@ -72,7 +86,7 @@ public class InsertActivity extends AppCompatActivity {
 
                 //scopro qual è l'elemento della tabella pasti al quale aggiungere i cibi
                 String pasto = riceviIntent();
-                support.inserimento(parent.getItemAtPosition(position).toString(),pasto);
+                support.inserimento(parent.getItemAtPosition(position).toString(),pasto, selectedDate);
 
                 ritorna();
             }

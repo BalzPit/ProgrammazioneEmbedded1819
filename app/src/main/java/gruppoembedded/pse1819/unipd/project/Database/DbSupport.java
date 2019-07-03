@@ -6,6 +6,8 @@ import android.util.Log;
 
 import org.json.JSONObject;
 
+import java.sql.Date;
+import java.util.Calendar;
 import java.util.List;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,11 +30,18 @@ public class DbSupport extends AppCompatActivity {
         return db;
     }
 
+
     //  METODO PER INSERIRE NUOVI CIBI NEL CORRETTO PASTO DEL DATABASE
-    public void inserimento(String pietanza, String pasto){
+    public void inserimento(String pietanza, String pasto, Date date){
+        //tiro fuori le informazioni dalla data
+        int year= date.getYear();
+        int month= date.getMonth();
+        int day= date.getDay();
         try {
             //se il pasto non esiste viene lanciata un'eccezione
-            Meal pastoAttuale = getDatabaseManager().noteModelMeal().findMealWithName(pasto).get(0);
+            Meal pastoAttuale = getDatabaseManager().noteModelMeal()
+                    .findMealWithName(pasto, year, month, day).get(0);
+            Log.i(TAG, "l'elemento esiste");
 
             //creo Json con i cibiDiOggi
             try {
@@ -64,6 +73,9 @@ public class DbSupport extends AppCompatActivity {
             //perciò ne creo uno nuovo
             Meal nuovoPasto = new Meal();
             nuovoPasto.nome = pasto;
+            nuovoPasto.year = year;
+            nuovoPasto.month = month;
+            nuovoPasto.day = day;
             //una volta creato il pasto insrisco subito il primo elemento cibo
             JSONObject cibi = new JSONObject();
             try {
@@ -78,29 +90,75 @@ public class DbSupport extends AppCompatActivity {
                 Log.i(TAG, "insert: eccezzione sul put: " + e);
             }
         }
+        Log.i(TAG, "inserita la pietanza");
     }
 
-    public Meal identificaPasto(String nomePasto){
-        //ottengo dati dal db
-        /*List<Meal> dati=getDatabaseManager().noteModelMeal().loadAllMeals();
-        Meal mioPasto=new Meal();
-        //Log.i(TAG, "lista pasti: "+dati);
 
-        //cerco il nome del pasto che mi interessa nella lista
-        for(int i=0;i<dati.size();i++){
-            Meal elem=dati.get(i);
 
-            //uso ignoreCase perché "pasto" inizia con la lettera maiuscola
-            if(elem.nome.compareToIgnoreCase(nomePasto)==0){
-                //se il nome combacia con quello che cerco lo salvo, poi estraggo tutti i cibi in esso contenuti
-                mioPasto=elem;
-                break;
-            }
-        }*/
+    // this method is used to safely get a meal from the database and, in case it doesn't exist,
+    // create a new one with the specified attributes.
+    public Meal identificaPasto(String pasto, Date date){
+        Meal meal = null;
 
-        //sistema molto più semplice
-        Meal mioPasto=getDatabaseManager().noteModelMeal().findMealWithName(nomePasto).get(0);
-        Log.i(TAG, "pasto trovato: "+mioPasto);
-        return mioPasto;
+        //tiro fuori le informazioni dalla data
+        int year= date.getYear();
+        int month= date.getMonth();
+        int day= date.getDay();
+        Log.i(TAG, "data: "+date.toString()+" -> "+year+"/"+month+"/"+day);
+        try {
+            //se il pasto non esiste viene lanciata un'eccezione
+            meal = getDatabaseManager().noteModelMeal()
+                    .findMealWithName(pasto, year, month, day).get(0);
+            Log.i(TAG, "l'elemento esiste");
+        }
+        catch(Exception manca) {
+            Log.i(TAG, "eccezione per mancanza elmento pasto: "+manca);
+
+            //perciò ne creo uno nuovo
+            meal = new Meal();
+            meal.nome = pasto;
+            meal.year = year;
+            meal.month = month;
+            meal.day = day;
+            meal.cibiDiOggi="";
+            //inserisco il pasto nella tabella corrispondente
+            getDatabaseManager().noteModelMeal().insertMeal(meal);
+
+            Log.i(TAG, "creato nuovo pasto e inserito nel db: "
+                    +meal.nome+" del giorno "+meal.year+"/"+meal.month+"/"+meal.day+", data: "+date.toString());
+        }
+        Log.i(TAG, "pasto trovato: "+meal);
+        return meal;
+    }
+
+    // this method checks if the date of a given day is
+    // in the database or not: if not the date gets added.
+    public void dateControl(Date todaysDate){
+
+        int year= todaysDate.getYear();
+        int month= todaysDate.getMonth();
+        int day= todaysDate.getDay();
+
+        Day newDay;
+
+        //check if it is in the database
+        try {
+
+            //se non esiste un Day relativo a quella data viene lanciata un'eccezione
+            newDay= getDatabaseManager().noteModelDay().findDayWithName(year,month,day).get(0);
+
+        }catch(Exception notfound){
+            Log.i(TAG, "eccezione per mancanza Day: "+notfound);
+
+            //inserisco il nuovo elemento nel db
+
+            newDay = new Day();
+            newDay.anno = year;
+            newDay.mese = month;
+            newDay.giorno = day;
+            newDay.calorie = 0; //standard value for calories, it can later be changed by the user in MainActivity
+
+            getDatabaseManager().noteModelDay().insertDay(newDay);
+        }
     }
 }

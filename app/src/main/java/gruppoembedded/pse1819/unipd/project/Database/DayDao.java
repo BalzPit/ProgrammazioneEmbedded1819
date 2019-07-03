@@ -17,8 +17,8 @@ public interface DayDao {
     List<Day> loadAllDays();
 
     //in questo modo posso fare ricerche mirate, per id o testo
-    @Query("SELECT * FROM Day WHERE id LIKE :search ")
-    List<Day> findDayWithName(String search);
+    @Query("SELECT * FROM Day WHERE anno LIKE :anno AND mese LIKE:mese AND giorno LIKE:giorno ")
+    List<Day> findDayWithName(int anno, int mese, int giorno);
 
     //niente delete per i giorni
 }

@@ -4,28 +4,40 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     tools:context=".MainActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        android:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:layout_constraintTop_toTopOf="parent">
+
+    </androidx.appcompat.widget.Toolbar>
 
     <com.github.mikephil.charting.charts.PieChart
         android:id="@+id/chart"
         android:layout_width="326dp"
         android:layout_height="427dp"
         android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
         android:layout_marginBottom="256dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
     <Button
         android:id="@+id/pranzo"
         android:layout_width="150dp"
         android:layout_height="60dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:text="@string/pranzo"
         app:layout_constraintEnd_toEndOf="@+id/chart"
         app:layout_constraintTop_toBottomOf="@+id/chart" />
@@ -34,10 +46,8 @@
         android:id="@+id/cena"
         android:layout_width="150dp"
         android:layout_height="60dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginBottom="96dp"
+        android:layout_marginTop="16dp"
         android:text="@string/cena"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/pranzo"
         app:layout_constraintTop_toBottomOf="@+id/pranzo" />
 
@@ -45,10 +55,8 @@
         android:id="@+id/snack"
         android:layout_width="150dp"
         android:layout_height="60dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginBottom="96dp"
+        android:layout_marginTop="16dp"
         android:text="@string/snacks"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@+id/colazione"
         app:layout_constraintTop_toBottomOf="@+id/colazione" />
 
@@ -56,9 +64,20 @@
         android:id="@+id/colazione"
         android:layout_width="150dp"
         android:layout_height="60dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:text="@string/colazione"
         app:layout_constraintStart_toStartOf="@+id/chart"
         app:layout_constraintTop_toBottomOf="@+id/chart" />
+
+    <EditText
+        android:id="@+id/editcalories"
+        android:layout_width="50dp"
+        android:layout_height="49dp"
+        android:layout_marginBottom="170dp"
+        android:ems="10"
+        android:inputType="number"
+        app:layout_constraintBottom_toBottomOf="@+id/chart"
+        app:layout_constraintEnd_toEndOf="@+id/chart"
+        app:layout_constraintStart_toStartOf="@+id/chart" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

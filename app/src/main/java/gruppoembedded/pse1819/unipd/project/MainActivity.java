@@ -3,6 +3,8 @@ package gruppoembedded.pse1819.unipd.project;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+
+import gruppoembedded.pse1819.unipd.project.Database.Day;
 import gruppoembedded.pse1819.unipd.project.Database.DbSupport;
 import gruppoembedded.pse1819.unipd.project.Database.DietDb;
 import gruppoembedded.pse1819.unipd.project.Database.Food;
@@ -11,8 +13,16 @@ import gruppoembedded.pse1819.unipd.project.Database.Meal;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+
+import androidx.appcompat.widget.Toolbar;
+
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+
 
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Description;
@@ -21,34 +31,104 @@ import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.sql.Date;
+
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity /*implements View.OnClickListener*/{
+public class MainActivity extends AppCompatActivity {
 
-    public String title = "Situazione Attuale";
+    private static final String TAG = "MainActivity";
+    private static final int GET_DATE = 1;
+    public String title;
     public DbSupport support= new DbSupport(this);
 
-    protected int totcalories = 2700;
+    //the user has the ability to select different days
+    public Date currentDate = new Date (Calendar.getInstance().getTimeInMillis());
+    DateParcelable dateParcelable;
+
+
+    private int totcalories;
     private int assumedcalories;
     protected int caloriestoget;
 
     String Labels[]= {"ASSUNTE", "RESTANTI"};
 
-    private static final String TAG = "MainActivityTag";
+    protected EditText number; // inizializzo il numero di calorie
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //all'apertura dell'app verifico se la tabella Food è vuota => prima volta che apro l'app, in tal caso la riempio
+        istantiateFood();
+
         setContentView(R.layout.activity_main);
+        Log.i(TAG, "Data corrente: "+currentDate.toString());
+
+        //insert date into the database if it is not already
+        support.dateControl(currentDate);
+
+        //get calories of that day
+        Day selectedDay = support.getDatabaseManager().noteModelDay()
+                .findDayWithName(currentDate.getYear(), currentDate.getMonth(), currentDate.getDay()).get(0);
+
+        totcalories = selectedDay.calorie;
+
+        // prendo il numero di calorie dalla EditText
+        number = (EditText)findViewById(R.id.editcalories);
+        number.setText(Integer.toString(totcalories));
+
+        number.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event){
+                if (actionId== EditorInfo.IME_ACTION_DONE){
+                    //salva nel database il numero delle calorie appena inserito
+                    int calorie = Integer.parseInt(number.getText().toString());
+                    Day selectedDay = support.getDatabaseManager().noteModelDay()
+                            .findDayWithName(currentDate.getYear(), currentDate.getMonth(), currentDate.getDay()).get(0);
+                    selectedDay.calorie = calorie;
+                    support.getDatabaseManager().noteModelDay().insertDay(selectedDay);
+                    //relaunch the activity with a new instance
+                    recreate();
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        String valuecalories = number.getText().toString();
+
+        title = currentDate.toString();
         setTitle(title);
-        assumedcalories=calories();
-        caloriestoget = totcalories-assumedcalories;
-        int Values[] = { assumedcalories , caloriestoget };
-        setupPieChart(Values); // chiamo il metodo che poi creerò
+
+        // chiamo il metodo che riempie il grafico
+        setupPieChart();
+
+        //imposta l'ActionBar
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setIcon(R.drawable.calendar_24dp);
+
+        toolbar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent= new Intent(MainActivity.this, DateSelectionActivity.class);
+                startActivityForResult(intent,GET_DATE);
+            }
+        });
+
+        //gestione del passaggiodella data alle altre activities
+        //pass the date so the system can decide which meal to add the selected food to
+        dateParcelable= new DateParcelable(currentDate);
+
 
         //inizializzazione dei bottoni
         Button pranzo = findViewById(R.id.pranzo);
@@ -62,6 +142,7 @@ public class MainActivity extends AppCompatActivity /*implements View.OnClickLis
             public void onClick(View v) {
                 Intent intPranzo=new Intent(v.getContext(), MealActivity.class);
                 intPranzo.putExtra("username","Pranzo");
+                intPranzo.putExtra("date", dateParcelable);
                 startActivity(intPranzo);
             }
         });
@@ -71,6 +152,7 @@ public class MainActivity extends AppCompatActivity /*implements View.OnClickLis
             public void onClick(View v) {
                 Intent intColazione=new Intent(v.getContext(), MealActivity.class);
                 intColazione.putExtra("username","Colazione");
+                intColazione.putExtra("date", dateParcelable);
                 startActivity(intColazione);
             }
         });
@@ -80,6 +162,7 @@ public class MainActivity extends AppCompatActivity /*implements View.OnClickLis
             public void onClick(View v) {
                 Intent intCena=new Intent(v.getContext(), MealActivity.class);
                 intCena.putExtra("username","Cena");
+                intCena.putExtra("date", dateParcelable);
                 startActivity(intCena);
             }
         });
@@ -89,17 +172,27 @@ public class MainActivity extends AppCompatActivity /*implements View.OnClickLis
             public void onClick(View v) {
                 Intent intSnacks=new Intent(v.getContext(), MealActivity.class);
                 intSnacks.putExtra("username","Snacks");
+                intSnacks.putExtra("date", dateParcelable);
                 startActivity(intSnacks);
             }
         });
-
-        //all'apertura dell'app verifico se la tabella Food è vuota => prima volta che apro l'app, in tal caso la riempio
-        istantiateFood();
     }
 
-    private void setupPieChart(int Values[]) {
-        //creazione metodo
-       //Popolo una lista di PieEntries
+
+
+
+
+    private void setupPieChart() {
+        //prendo le informazioni
+        assumedcalories=calories();
+        caloriestoget = totcalories-assumedcalories;
+        if (caloriestoget<0){
+            //per non buggare il grafico
+            caloriestoget = 0;
+        }
+        int Values[] = { assumedcalories , caloriestoget };
+
+        //Popolo una lista di PieEntries
         List<PieEntry> pieEntries = new ArrayList<>();
         //devo popolare ora il mio Chart con i dati, quindi per ogni pezzo del mio grafico a torta devo avere un'entry.
         // o nominato le mie entries (in riga 14 e 15 ) devo fare il pair per ogni elemento del vettore (riga 14) con ogni
@@ -108,9 +201,11 @@ public class MainActivity extends AppCompatActivity /*implements View.OnClickLis
             pieEntries.add(new PieEntry(Values[i],Labels[i]));
         }
 
+        //int[] colors = {R.color.colorPrimary, R.color.colorAccent};
+
         PieDataSet dataSet = new PieDataSet(pieEntries, "" );
         //cambio il colore di ogni "fetta" del grafico a torta, altrimenti resterebbero tutte con colori uguali.
-        dataSet.setColors( ColorTemplate.JOYFUL_COLORS );
+        dataSet.setColors(ColorTemplate.JOYFUL_COLORS);
         PieData data = new PieData(dataSet);
 
 
@@ -123,14 +218,17 @@ public class MainActivity extends AppCompatActivity /*implements View.OnClickLis
         data.setValueTextSize(20);
         chart.setEntryLabelTextSize(12f); // settaggio della dimensione del testo riferito al valore della fetta di torta
         chart.setEntryLabelColor(-1); // il valore -1 corrisponde al colore bianco
-        String totcaloriesstring = Integer.toString(totcalories);
-        chart.setCenterText("TOTALE CALORIE" + " " + totcaloriesstring); //testo che compare all'internod del buco del grafico
+        chart.setCenterText("TOTALE CALORIE"); //testo che compare all'internod del buco del grafico
         chart.setCenterTextColor(-16777216); //il valore -16777216 corrisponde al colore nero
         chart.setCenterTextSize(16f); //dimensione del testo all'internod el buco
         //creo un'animazione all'apertura del grafico
         chart.animateY(1500);
         chart.invalidate();
     }
+
+
+
+
 
     public int calories(){
         //creo una matrice con tutti i cibi consumati in un giorno, il loro nome e la quantità
@@ -152,22 +250,25 @@ public class MainActivity extends AppCompatActivity /*implements View.OnClickLis
             Log.i(TAG, "nome cibo trovato: " + cibiDelGiorno[i][0]);
 
             //trovo il valore nutrizionale del cibo in esame
-            int valoreNutrizionale=findCalories(cibiDelGiorno[i][0]);
-
-            //eseguo calcolo calorie
-            calTot= (int) (calTot+(quantità*valoreNutrizionale)/100);
+            if(cibiDelGiorno[i][0]!=null) {  //è null quando ho un pasto vuoto
+                int valoreNutrizionale = findCalories(cibiDelGiorno[i][0]);
+                //eseguo calcolo calorie
+                calTot= (int) (calTot+(quantità*valoreNutrizionale)/100);
+            }
         }
-
-
         //Log.i(TAG, "elemento di prova: "+support.getDatabaseManager().noteModelFood().findFoodWithName("sushi").get(0).nome);
 
         return calTot;
     }
 
+
+
+
+
     private String[][] findFoods(){
         //prendo tutti i pasti della giornata
-
-        List<Meal> dati=support.getDatabaseManager().noteModelMeal().loadAllMeals();
+        List<Meal> dati= support.getDatabaseManager().noteModelMeal()
+                .findMealsOfDay(currentDate.getYear(), currentDate.getMonth(),currentDate.getDay());
 
         //per ognuno prelevo tutti i cibi
         String tuttiCibi="";
@@ -201,6 +302,9 @@ public class MainActivity extends AppCompatActivity /*implements View.OnClickLis
         return cibiDelGiorno;
     }
 
+
+
+
     private int findCalories(String nome){
         //carico la lista di tutti i cibi salvati a database
         /*List<Food> listaCibi=support.getDatabaseManager().noteModelFood().loadAllFood();
@@ -219,11 +323,58 @@ public class MainActivity extends AppCompatActivity /*implements View.OnClickLis
         }*/
 
         //cerco il cibo corretto nel db ed estraggo le Kcal... sistema molto più semplice
-        Food elem=support.getDatabaseManager().noteModelFood().findFoodWithName(nome);
+        Food elem = support.getDatabaseManager().noteModelFood().findFoodWithName(nome);
         Log.i(TAG, "test su cibi: " + elem.KcalPerUnit);
 
         return (int)elem.KcalPerUnit;
     }
+
+
+
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        //aggiornamento grafico con nuovo valore calorie
+        setupPieChart();
+    }
+
+
+
+
+
+    // override of OnActivityResult to get the selected date
+    // that was passed by DateSelectionActivity
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == GET_DATE){
+            if (resultCode == RESULT_OK){
+
+                dateParcelable = data.getParcelableExtra("date");
+                currentDate = dateParcelable.getDate();
+
+                title = currentDate.toString();
+                setTitle(title);
+
+                Day selectedDay = support.getDatabaseManager().noteModelDay()
+                        .findDayWithName(currentDate.getYear(), currentDate.getMonth(), currentDate.getDay()).get(0);
+
+                totcalories = selectedDay.calorie;
+
+                number.setText(Integer.toString(totcalories));
+
+                Log.i(TAG, "Data corrente: "+currentDate.toString());
+            }
+        }
+    }
+
+
+
+
 
     private void istantiateFood(){
         //l'istanziazione viene fatta solo se è la prima volta che l'app viene installata, e quindi non esiste anoora il database
@@ -264,13 +415,4 @@ public class MainActivity extends AppCompatActivity /*implements View.OnClickLis
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        //aggiornamento grafico con nuovo valore calorie
-        assumedcalories=calories();
-        caloriestoget = totcalories-assumedcalories;
-        int Values[] = { assumedcalories , caloriestoget };
-        setupPieChart(Values);
-    }
 }
