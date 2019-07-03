@@ -1,5 +1,7 @@
 # ProgrammazioneEmbedded1819
 
+!!!---Se cambia branch/versione, è necessaria l'eliminazione dei dati dell'app (o la disinstallazione), onde evitare crash---!!!
+
 La versione finale dell'app si trova nel branch "MASTER" ed è la stessa del file zip che trova nella mail.
 
 Siamo consci della presenza, in questa versione più aggiornata, di qualche bug legato alla gestione delle date con il database.
